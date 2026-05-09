@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "Settings": {
+      "title": "Settings",
+      "description": "Global restaurant settings",
+      "type": "object",
+      "properties": {
+        "restaurantName": { "type": "string" },
+        "heroTitle": { "type": "string" },
+        "heroSubtitle": { "type": "string" },
+        "contactEmail": { "type": "string" },
+        "address": { "type": "string" },
+        "isOpen": { "type": "boolean" }
+      },
+      "required": ["restaurantName", "heroTitle", "heroSubtitle", "contactEmail", "address", "isOpen"]
+    },
+    "Menu": {
+      "title": "Menu Item",
+      "description": "A single menu item",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "description": { "type": "string" },
+        "category": { "type": "string", "enum": ["Cheesesteaks", "Burgers", "Sides"] },
+        "imageURL": { "type": "string" },
+        "isAvailable": { "type": "boolean" },
+        "createdAt": { "type": "number", "description": "Timestamp" }
+      },
+      "required": ["name", "price", "description", "category", "imageURL", "isAvailable", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/settings/{settingsId}": {
+      "schema": "Settings",
+      "description": "Singleton for settings, settingsId is typically 'global'"
+    },
+    "/menu/{menuId}": {
+      "schema": "Menu",
+      "description": "Menu items collection"
+    }
+  }
+}

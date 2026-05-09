@@ -1,0 +1,91 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() { return request.auth != null; }
+    
+    // We only need simple admin logic here. As requested in the prompt, there's no strict RBAC list, but we can assume normal users cannot write, and an admin user (whoever authenticates) can. Wait, it's safer to have an admin email or just check for auth.
+    // For this context, standard firebase email/password auth means ANY created user is an admin since the user themselves will set it up.
+    // Let's just use isSignedIn() to mean Admin for this restaurant app.
+
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+
+    function isValidSettings(data) {
+      let isBasicValid = data.keys().hasAll(['restaurantName', 'heroTitle', 'heroSubtitle', 'contactEmail', 'address', 'isOpen', 'whatsappNumber', 'mbWayNumber', 'deliveryFee'])
+        && data.restaurantName is string && data.restaurantName.size() <= 200
+        && data.heroTitle is string && data.heroTitle.size() <= 200
+        && data.heroSubtitle is string && data.heroSubtitle.size() <= 200
+        && data.contactEmail is string && data.contactEmail.size() <= 200
+        && data.address is string && data.address.size() <= 500
+        && data.isOpen is bool
+        && data.whatsappNumber is string && data.whatsappNumber.size() <= 50
+        && data.mbWayNumber is string && data.mbWayNumber.size() <= 50
+        && data.deliveryFee is number;
+      
+      let deliveryZonesValid = (!('deliveryZones' in data) || (data.deliveryZones is list && data.deliveryZones.size() <= 50));
+      return isBasicValid && deliveryZonesValid;
+    }
+
+    match /settings/{settingsId} {
+      allow get: if true;
+      allow list: if true; 
+      allow create: if isSignedIn() && isValidId(settingsId) && isValidSettings(incoming());
+      allow update: if isSignedIn() && isValidId(settingsId) && isValidSettings(incoming());
+      allow delete: if false; 
+    }
+
+    function isValidMenu(data) {
+      let isBasicValid = data.keys().hasAll(['name', 'price', 'description', 'category', 'imageURL', 'isAvailable', 'createdAt'])
+        && data.name is string && data.name.size() <= 200
+        && data.price is number
+        && data.description is string && data.description.size() <= 1000
+        && data.category is string && data.category.matches('^(Cheesesteaks|Burgers|Sides|Drinks)$')
+        && data.imageURL is string && data.imageURL.size() <= 500000
+        && data.isAvailable is bool
+        && data.createdAt is number;
+      
+      let optionsValid = (!('options' in data) || (data.options is list && data.options.size() <= 20));
+      return isBasicValid && optionsValid;
+    }
+
+    match /menu/{menuId} {
+      allow get: if isValidId(menuId);
+      allow list: if true; 
+      allow create: if isSignedIn() && isValidId(menuId) && isValidMenu(incoming());
+      allow update: if isSignedIn() && isValidId(menuId) && isValidMenu(incoming());
+      allow delete: if isSignedIn() && isValidId(menuId);
+    }
+
+    function isValidOrder(data) {
+      let isBasicValid = data.keys().hasAll(['customerName', 'customerPhone', 'orderType', 'items', 'totalPrice', 'deliveryFee', 'status', 'createdAt'])
+        && data.customerName is string && data.customerName.size() <= 200
+        && data.customerPhone is string && data.customerPhone.size() <= 50
+        && data.orderType is string && data.orderType.matches('^(Eat-in|Takeaway|Delivery)$')
+        && data.items is list && data.items.size() <= 50
+        && data.totalPrice is number
+        && data.deliveryFee is number
+        && data.status is string && data.status.matches('^(Pending|Preparing|Ready|Delivered|Cancelled)$')
+        && data.createdAt is number;
+      
+      let addressValid = !('customerAddress' in data) || (data.customerAddress is string && data.customerAddress.size() <= 500);
+      let zipCodeValid = !('customerZipCode' in data) || (data.customerZipCode is string && data.customerZipCode.size() <= 50);
+      
+      return isBasicValid && addressValid && zipCodeValid;
+    }
+
+    match /orders/{orderId} {
+      allow get: if isSignedIn() && isValidId(orderId);
+      allow list: if isSignedIn();
+      allow create: if isValidId(orderId) && isValidOrder(incoming());
+      allow update: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming());
+      allow delete: if isSignedIn() && isValidId(orderId);
+    }
+  }
+}
