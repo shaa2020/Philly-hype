@@ -17,7 +17,22 @@ export interface RestaurantSettings {
   mbWayNumber: string;
   uberEatsUrl?: string;
   deliverooUrl?: string;
+  glovoUrl?: string;
+  boltFoodUrl?: string;
   deliveryFee?: number;
+  promoBannerEnabled?: boolean;
+  promoBannerText?: string;
+  promoBannerLink?: string;
+  highlightEnabled?: boolean;
+  highlightTag?: string;
+  highlightTitle?: string;
+  highlightSubtitle?: string;
+  highlightDescription?: string;
+  highlightButtonText?: string;
+  highlightImage?: string;
+  instagramUrl?: string;
+  facebookUrl?: string;
+  tiktokUrl?: string;
   deliveryZones?: DeliveryZone[];
 }
 
@@ -56,7 +71,10 @@ export interface Order {
   customerName: string;
   customerPhone: string;
   customerAddress?: string;
+  customerDoor?: string;
+  customerCity?: string;
   customerZipCode?: string;
+  customerNif?: string;
   orderType: OrderType;
   items: CartItem[];
   totalPrice: number;

@@ -68,19 +68,28 @@ export default function Contact({ settings }: ContactProps) {
             </div>
             <h3 className="text-xs font-bold uppercase tracking-widest text-white/50 mb-4">{t('deliveryPartners')}</h3>
             <div className="space-y-3">
-              {settings?.uberEatsUrl ? (
+              {settings?.uberEatsUrl && (
                 <a href={settings.uberEatsUrl} target="_blank" rel="noopener noreferrer" className="block text-lg font-black text-[#06C167] hover:text-[#06C167]/80 transition-colors">
                   UberEats
                 </a>
-              ) : (
-                <p className="text-sm font-medium text-white/20 line-through">UberEats</p>
               )}
-              {settings?.deliverooUrl ? (
+              {settings?.deliverooUrl && (
                 <a href={settings.deliverooUrl} target="_blank" rel="noopener noreferrer" className="block text-lg font-black text-[#00CCBC] hover:text-[#00CCBC]/80 transition-colors">
                   Deliveroo
                 </a>
-              ) : (
-                <p className="text-sm font-medium text-white/20 line-through">Deliveroo</p>
+              )}
+              {settings?.glovoUrl && (
+                <a href={settings.glovoUrl} target="_blank" rel="noopener noreferrer" className="block text-lg font-black text-[#FFC244] hover:text-[#FFC244]/80 transition-colors">
+                  Glovo
+                </a>
+              )}
+              {settings?.boltFoodUrl && (
+                <a href={settings.boltFoodUrl} target="_blank" rel="noopener noreferrer" className="block text-lg font-black text-[#34D186] hover:text-[#34D186]/80 transition-colors">
+                  Bolt Food
+                </a>
+              )}
+              {!settings?.uberEatsUrl && !settings?.deliverooUrl && !settings?.glovoUrl && !settings?.boltFoodUrl && (
+                <p className="text-sm font-medium text-white/20">Coming soon</p>
               )}
             </div>
           </div>

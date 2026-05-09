@@ -75,61 +75,88 @@ export default function Hero({ settings }: HeroProps) {
             transition={{ delay: 0.5, duration: 0.8 }}
             className="flex flex-col gap-10 mt-12 sm:mt-16 sm:pl-20"
           >
-            <div className="flex flex-wrap items-center gap-8">
-              <a 
-                href="#menu" 
-                className="group relative flex items-center gap-4 text-white hover:text-accent transition-colors"
+            <div className="flex flex-row flex-wrap items-center gap-6 sm:gap-8">
+              <button 
+                onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
+                className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-accent hover:text-white transition-colors relative after:absolute after:-bottom-1.5 after:left-0 after:w-full after:h-[2px] after:bg-accent/30 hover:after:bg-white pb-1.5"
               >
-                <div className="w-14 h-14 rounded-full border border-white/20 flex items-center justify-center group-hover:border-accent group-hover:bg-accent/10 transition-all duration-300">
-                  <div className="w-1.5 h-1.5 rounded-full bg-white group-hover:bg-accent transition-colors" />
-                </div>
-                <span className="font-bold uppercase tracking-[0.2em] text-[10px]">{t('exploreMenu')}</span>
-              </a>
+                {t('exploreMenu')}
+              </button>
+
+              <div className="hidden sm:block w-px h-8 bg-white/10"></div>
 
               <div className="relative group z-50">
                 <button 
-                  className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors relative after:absolute after:-bottom-1 after:left-0 after:w-full after:h-px after:bg-white/20 hover:after:bg-white pb-1"
+                  className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-colors relative after:absolute after:-bottom-1.5 after:left-0 after:w-full after:h-[2px] after:bg-white/10 hover:after:bg-white pb-1.5"
                 >
                   {t('contact')}
                 </button>
-                <div className="absolute top-full left-0 mt-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 flex flex-col bg-bg-card border border-white/10 rounded-xl overflow-hidden min-w-[140px] shadow-xl">
+                <div className="absolute top-full left-0 mt-3 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-300 flex flex-col bg-bg-card border border-white/10 rounded-xl overflow-hidden min-w-[160px] shadow-2xl backdrop-blur-xl">
                   <a 
                     href={`tel:${settings?.whatsappNumber}`} 
-                    className="text-[10px] font-bold uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/5 flex items-center gap-3 px-4 py-3 transition-colors"
+                    className="text-[10px] font-bold uppercase tracking-widest text-white/70 hover:text-white hover:bg-white/10 flex items-center gap-3 px-5 py-4 transition-colors"
                   >
-                    <Phone className="w-3.5 h-3.5" /> {t('call')}
+                    <Phone className="w-4 h-4" /> {t('call')}
                   </a>
                   <a 
                     href={`https://wa.me/${settings?.whatsappNumber}`} 
                     target="_blank" 
                     rel="noopener noreferrer" 
-                    className="text-[10px] font-bold uppercase tracking-widest text-white/70 hover:text-[#25D366] hover:bg-white/5 flex items-center gap-3 px-4 py-3 border-t border-white/5 transition-colors"
+                    className="text-[10px] font-bold uppercase tracking-widest text-white/70 hover:text-[#25D366] hover:bg-white/10 flex items-center gap-3 px-5 py-4 border-t border-white/5 transition-colors"
                   >
-                    <MessageCircle className="w-3.5 h-3.5" /> {t('whatsapp')}
+                    <MessageCircle className="w-4 h-4" /> {t('whatsapp')}
                   </a>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-4">
-              <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-white/30 pl-2 border-l-2 border-accent">{t('orderOnline')}</span>
-              <div className="flex flex-wrap gap-4 items-center">
-                <a 
-                  href={settings?.uberEatsUrl || '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-8 py-3.5 rounded-full bg-[#06C167]/10 border border-[#06C167]/20 hover:bg-[#06C167] text-[#06C167] hover:text-black transition-all duration-300 text-[10px] font-bold uppercase tracking-[0.2em]"
-                >
-                  UberEats
-                </a>
-                <a 
-                  href={settings?.deliverooUrl || '#'} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="px-8 py-3.5 rounded-full bg-[#00CCBC]/10 border border-[#00CCBC]/20 hover:bg-[#00CCBC] text-[#00CCBC] hover:text-white transition-all duration-300 text-[10px] font-bold uppercase tracking-[0.2em]"
-                >
-                  Deliveroo
-                </a>
+            <div className="flex flex-col gap-5 max-w-[400px] sm:max-w-none">
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.3em] text-white/30 pl-3 border-l-2 border-accent">{t('orderOnline')}</span>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 max-w-[450px]">
+                {settings?.uberEatsUrl && (
+                  <a 
+                    href={settings.uberEatsUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                  >
+                    <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
+                    <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('uberEats') || 'UberEats'}</span>
+                  </a>
+                )}
+                {settings?.deliverooUrl && (
+                  <a 
+                    href={settings.deliverooUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                  >
+                    <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
+                    <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('deliveroo') || 'Deliveroo'}</span>
+                  </a>
+                )}
+                {settings?.glovoUrl && (
+                  <a 
+                    href={settings.glovoUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                  >
+                    <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
+                    <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('glovo') || 'Glovo'}</span>
+                  </a>
+                )}
+                {settings?.boltFoodUrl && (
+                  <a 
+                    href={settings.boltFoodUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                  >
+                    <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
+                    <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('boltFood') || 'Bolt Food'}</span>
+                  </a>
+                )}
               </div>
             </div>
           </motion.div>

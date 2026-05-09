@@ -20,7 +20,10 @@ export default function Cart({ settings }: CartProps) {
     name: '',
     phone: '',
     address: '',
-    zipCode: ''
+    city: '',
+    door: '',
+    zipCode: '',
+    nif: ''
   });
   const { items, updateQuantityByIndex, updateSpecialInstructionsByIndex, removeItemByIndex, clearCart, totalItems, totalPrice, orderType, setOrderType } = useCart();
 
@@ -69,8 +72,8 @@ export default function Cart({ settings }: CartProps) {
     }
 
     if (orderType === 'Delivery') {
-      if (!customerInfo.address.trim() || !customerInfo.zipCode.trim()) {
-        setError('Please provide your full address and zip code for delivery.');
+      if (!customerInfo.address.trim() || !customerInfo.city.trim() || !customerInfo.zipCode.trim()) {
+        setError('Please provide your full address, city and zip code for delivery.');
         return;
       }
       if (activeZone && totalPrice < activeZone.minOrderValue) {
@@ -92,11 +95,18 @@ export default function Cart({ settings }: CartProps) {
     if (orderType === 'Delivery') {
       message += `🚚 *Delivery Information*\n`;
       message += `   Address: ${customerInfo.address}\n`;
+      if (customerInfo.door.trim()) message += `   Door/Apt: ${customerInfo.door}\n`;
+      message += `   City: ${customerInfo.city}\n`;
       message += `   Zip Code: ${customerInfo.zipCode}\n`;
       if (activeZone) {
         message += `   Zone: ${activeZone.name}\n`;
       }
       message += `\n`;
+    }
+
+    if (customerInfo.nif.trim()) {
+      message += `🧾 *Tax Info*\n`;
+      message += `   NIF: ${customerInfo.nif}\n\n`;
     }
     
     // Items
@@ -135,7 +145,10 @@ export default function Cart({ settings }: CartProps) {
         customerName: customerInfo.name,
         customerPhone: customerInfo.phone,
         customerAddress: customerInfo.address,
+        customerCity: customerInfo.city,
+        customerDoor: customerInfo.door,
         customerZipCode: customerInfo.zipCode,
+        customerNif: customerInfo.nif,
         orderType,
         items,
         totalPrice: finalTotal,
@@ -175,19 +188,22 @@ export default function Cart({ settings }: CartProps) {
 
   return (
     <>
-      <motion.button
-        onClick={() => setIsOpen(true)}
-        animate={{ 
-          scale: isBouncing ? [1, 1.2, 1] : 1,
-          rotate: isBouncing ? [0, -10, 10, 0] : 0
-        }}
-        transition={{ duration: 0.3 }}
-        className="fixed bottom-8 right-8 z-40 bg-accent text-black w-16 h-16 rounded-full shadow-2xl hover:bg-white active:scale-90 transition-colors flex items-center justify-center group"
-        aria-label="View Cart"
-      >
-        <ShoppingCart className="w-7 h-7" />
-        <AnimatePresence>
-          {totalItems > 0 && (
+      <AnimatePresence>
+        {totalItems > 0 && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ 
+              scale: isBouncing ? [1, 1.2, 1] : 1,
+              rotate: isBouncing ? [0, -10, 10, 0] : 0,
+              opacity: 1
+            }}
+            exit={{ scale: 0, opacity: 0 }}
+            onClick={() => setIsOpen(true)}
+            transition={{ duration: 0.3 }}
+            className="fixed bottom-8 right-8 z-40 bg-accent text-black w-14 h-14 sm:w-16 sm:h-16 rounded-full shadow-2xl hover:bg-white active:scale-90 transition-colors flex items-center justify-center group"
+            aria-label="View Cart"
+          >
+            <ShoppingCart className="w-6 h-6 sm:w-7 sm:h-7" />
             <motion.span 
               initial={{ scale: 0, y: 10 }}
               animate={{ scale: 1, y: 0 }}
@@ -197,9 +213,9 @@ export default function Cart({ settings }: CartProps) {
             >
               {totalItems}
             </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.button>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Overlay */}
       <AnimatePresence>
@@ -295,22 +311,49 @@ export default function Cart({ settings }: CartProps) {
                         className={`w-full bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && !customerInfo.phone.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                       />
                     </div>
+                    <input 
+                      type="text" 
+                      placeholder={t('nif')}
+                      value={customerInfo.nif}
+                      onChange={(e) => setCustomerInfo({...customerInfo, nif: e.target.value})}
+                      className="w-full bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border border-white/5 focus:border-accent/40"
+                    />
                     {orderType === 'Delivery' && (
                       <motion.div
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
                         exit={{ opacity: 0, height: 0 }}
-                        className="space-y-1.5 overflow-hidden"
+                        className="space-y-1.5 overflow-hidden pt-1"
                       >
                         <div className="flex gap-1.5">
-                          <textarea 
+                          <input 
+                            type="text" 
                             placeholder={t('address')}
                             value={customerInfo.address}
                             onChange={(e) => {
                               setCustomerInfo({...customerInfo, address: e.target.value});
                               setError(null);
                             }}
-                            className={`flex-grow bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all resize-none h-12 rounded-md border ${error && orderType === 'Delivery' && !customerInfo.address.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                            className={`flex-grow bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.address.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                          />
+                          <input 
+                            type="text" 
+                            placeholder={t('door')}
+                            value={customerInfo.door}
+                            onChange={(e) => setCustomerInfo({...customerInfo, door: e.target.value})}
+                            className="w-24 sm:w-28 bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border border-white/5 focus:border-accent/40"
+                          />
+                        </div>
+                        <div className="flex gap-1.5">
+                          <input 
+                            type="text" 
+                            placeholder={t('city')}
+                            value={customerInfo.city}
+                            onChange={(e) => {
+                              setCustomerInfo({...customerInfo, city: e.target.value});
+                              setError(null);
+                            }}
+                            className={`flex-grow bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.city.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                           />
                           <input 
                             type="text" 
@@ -321,7 +364,7 @@ export default function Cart({ settings }: CartProps) {
                               setCustomerInfo({...customerInfo, zipCode: e.target.value});
                               setError(null);
                             }}
-                            className={`w-24 bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.zipCode.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                            className={`w-24 sm:w-28 bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.zipCode.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                           />
                         </div>
                         <div className="flex items-center justify-between p-1.5 bg-accent/5 border border-accent/20 rounded-md">
