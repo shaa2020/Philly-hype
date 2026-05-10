@@ -15,7 +15,10 @@ export default function Login() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (user) {
-        if (user.email === 'iamshanto7860@gmail.com') {
+        const urlParams = new URLSearchParams(window.location.search);
+        const hasTenant = urlParams.has('tenant');
+        
+        if (user.email === 'iamshanto7860@gmail.com' && !hasTenant) {
           navigate({ pathname: '/superadmin', search: window.location.search });
         } else {
           navigate({ pathname: '/admin/dashboard', search: window.location.search });
