@@ -2,12 +2,14 @@ import React, { useState, useRef } from 'react';
 import { MenuItem, MenuCategory, CATEGORIES, MenuOption } from '../../types';
 import { addMenuItem, updateMenuItem, deleteMenuItem, uploadImage } from '../../lib/firestore';
 import { Edit2, Trash2, Plus, Image as ImageIcon, CheckCircle, XCircle, X, AlignLeft, Tags, Euro, Loader2 } from 'lucide-react';
+import { useTenant } from '../../context/TenantContext';
 
 interface AdminMenuManagerProps {
   items: MenuItem[];
 }
 
 export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
+  const { tenantId } = useTenant();
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<MenuItem>>({});
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -56,15 +58,16 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
   };
 
   const handleSave = async () => {
+    if (!tenantId) return;
     try {
       if (isEditing === 'new') {
         const newItem = {
           ...formData,
           createdAt: Date.now()
         } as Omit<MenuItem, 'id'>;
-        await addMenuItem(newItem);
+        await addMenuItem(tenantId, newItem);
       } else if (isEditing) {
-        await updateMenuItem(isEditing, formData as Partial<Omit<MenuItem, 'id'>>);
+        await updateMenuItem(tenantId, isEditing, formData as Partial<Omit<MenuItem, 'id'>>);
       }
       setIsEditing(null);
       setFormData({});
@@ -74,8 +77,9 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
   };
 
   const handleDelete = async (id: string) => {
+    if (!tenantId) return;
     if (confirm('Are you sure you want to delete this item?')) {
-      await deleteMenuItem(id);
+      await deleteMenuItem(tenantId, id);
     }
   };
 
@@ -128,7 +132,8 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
   };
 
   const toggleAvailability = async (item: MenuItem) => {
-    await updateMenuItem(item.id!, { isAvailable: !item.isAvailable });
+    if (!tenantId) return;
+    await updateMenuItem(tenantId, item.id!, { isAvailable: !item.isAvailable });
   };
 
   return (

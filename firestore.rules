@@ -7,9 +7,18 @@ service cloud.firestore {
 
     function isSignedIn() { return request.auth != null; }
     
-    // We only need simple admin logic here. As requested in the prompt, there's no strict RBAC list, but we can assume normal users cannot write, and an admin user (whoever authenticates) can. Wait, it's safer to have an admin email or just check for auth.
-    // For this context, standard firebase email/password auth means ANY created user is an admin since the user themselves will set it up.
-    // Let's just use isSignedIn() to mean Admin for this restaurant app.
+    function isSuperAdmin() {
+      return isSignedIn() && request.auth.token.email == 'iamshanto7860@gmail.com';
+    }
+
+    function isTenantOwner(tenantId) {
+      let tenantDoc = get(/databases/$(database)/documents/tenants/$(tenantId));
+      return tenantDoc != null && tenantDoc.data.ownerEmail == request.auth.token.email;
+    }
+
+    function isTenantAdmin(tenantId) {
+      return isSuperAdmin() || isTenantOwner(tenantId);
+    }
 
     function isValidId(id) { 
       return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
@@ -33,12 +42,10 @@ service cloud.firestore {
       return isBasicValid && deliveryZonesValid;
     }
 
-    match /settings/{settingsId} {
+    match /tenants/{tenantId} {
       allow get: if true;
       allow list: if true; 
-      allow create: if isSignedIn() && isValidId(settingsId) && isValidSettings(incoming());
-      allow update: if isSignedIn() && isValidId(settingsId) && isValidSettings(incoming());
-      allow delete: if false; 
+      allow write: if isSuperAdmin(); // Allow admins to manage tenants.
     }
 
     function isValidMenu(data) {
@@ -53,14 +60,6 @@ service cloud.firestore {
       
       let optionsValid = (!('options' in data) || (data.options is list && data.options.size() <= 20));
       return isBasicValid && optionsValid;
-    }
-
-    match /menu/{menuId} {
-      allow get: if isValidId(menuId);
-      allow list: if true; 
-      allow create: if isSignedIn() && isValidId(menuId) && isValidMenu(incoming());
-      allow update: if isSignedIn() && isValidId(menuId) && isValidMenu(incoming());
-      allow delete: if isSignedIn() && isValidId(menuId);
     }
 
     function isValidOrder(data) {
@@ -80,12 +79,30 @@ service cloud.firestore {
       return isBasicValid && addressValid && zipCodeValid;
     }
 
-    match /orders/{orderId} {
-      allow get: if isSignedIn() && isValidId(orderId);
-      allow list: if isSignedIn();
-      allow create: if isValidId(orderId) && isValidOrder(incoming());
-      allow update: if isSignedIn() && isValidId(orderId) && isValidOrder(incoming());
-      allow delete: if isSignedIn() && isValidId(orderId);
+    match /restaurants/{tenantId} {
+      match /settings/{settingsId} {
+        allow get: if true;
+        allow list: if true; 
+        allow create: if isTenantAdmin(tenantId) && isValidId(settingsId) && isValidSettings(incoming());
+        allow update: if isTenantAdmin(tenantId) && isValidId(settingsId) && isValidSettings(incoming());
+        allow delete: if false; 
+      }
+
+      match /menu/{menuId} {
+        allow get: if isValidId(menuId);
+        allow list: if true; 
+        allow create: if isTenantAdmin(tenantId) && isValidId(menuId) && isValidMenu(incoming());
+        allow update: if isTenantAdmin(tenantId) && isValidId(menuId) && isValidMenu(incoming());
+        allow delete: if isTenantAdmin(tenantId) && isValidId(menuId);
+      }
+
+      match /orders/{orderId} {
+        allow get: if isTenantAdmin(tenantId) && isValidId(orderId);
+        allow list: if isTenantAdmin(tenantId);
+        allow create: if isValidOrder(incoming()); // removed isValidId(orderId) to let firebase generate via setDoc or addDoc
+        allow update: if isTenantAdmin(tenantId) && isValidId(orderId) && isValidOrder(incoming());
+        allow delete: if isTenantAdmin(tenantId) && isValidId(orderId);
+      }
     }
   }
 }

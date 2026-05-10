@@ -1,17 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
-import { ShoppingCart, X, Plus, Minus, Send, CheckCircle2 } from 'lucide-react';
+import { ShoppingCart, X, Plus, Minus, Send, CheckCircle2, ArrowLeft, Upload, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { RestaurantSettings, Order } from '../types';
-import { addOrder } from '../lib/firestore';
+import { addOrder, uploadPaymentProof } from '../lib/firestore';
 import { useLanguage } from '../context/LanguageContext';
+import { useTenant } from '../context/TenantContext';
 
 interface CartProps {
   settings: RestaurantSettings | null;
 }
 
 export default function Cart({ settings }: CartProps) {
+  const { tenantId } = useTenant();
   const [isOpen, setIsOpen] = useState(false);
+  const [checkoutPhase, setCheckoutPhase] = useState<'cart' | 'payment'>('cart');
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isBouncing, setIsBouncing] = useState(false);
   const [isOrderSent, setIsOrderSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -53,9 +58,20 @@ export default function Cart({ settings }: CartProps) {
     }
   }, [totalItems]);
 
-  const handleCheckout = () => {
+  useEffect(() => {
+    if (!isOpen) {
+      setTimeout(() => {
+        setCheckoutPhase('cart');
+        setPaymentProof(null);
+        setError(null);
+      }, 300);
+    }
+  }, [isOpen]);
+
+  const handleProceedToPayment = () => {
     setError(null);
 
+    // Initial validations
     if (!settings?.isOpen) {
       setError('Sorry, the store is currently closed.');
       return;
@@ -80,6 +96,27 @@ export default function Cart({ settings }: CartProps) {
         setError(`Minimum order for ${activeZone.name} is €${activeZone.minOrderValue.toFixed(2)}.`);
         return;
       }
+    }
+
+    setCheckoutPhase('payment');
+  };
+
+  const handleCheckout = async () => {
+    setError(null);
+
+    let proofUrl: string | undefined = undefined;
+
+    if (paymentProof && tenantId) {
+      setIsUploading(true);
+      try {
+        proofUrl = await uploadPaymentProof(paymentProof);
+      } catch (err: any) {
+        console.error('Proof upload failed', err);
+        setError(err.message || 'Failed to upload proof. Please try again.');
+        setIsUploading(false);
+        return;
+      }
+      setIsUploading(false);
     }
 
     let message = `━━━━━━━━━━━━━━━━━━━━━\n`;
@@ -134,10 +171,14 @@ export default function Cart({ settings }: CartProps) {
     message += `\n💰 *TOTAL TO PAY: €${finalTotal.toFixed(2)}*\n`;
     message += `━━━━━━━━━━━━━━━━━━━━━\n`;
 
-    if (settings.mbWayNumber) {
+    if (settings?.mbWayNumber) {
       message += `\n💳 *Payment Method: MB WAY*\n`;
       message += `   Please send to: ${settings.mbWayNumber}\n`;
-      message += `   _I am sending the payment proof right now._\n`;
+      if (proofUrl) {
+        message += `   _Proof of payment submitted to restaurant system._\n`;
+      } else {
+        message += `   _I will send the payment proof shortly._\n`;
+      }
     }
 
     try {
@@ -154,10 +195,15 @@ export default function Cart({ settings }: CartProps) {
         totalPrice: finalTotal,
         deliveryFee,
         status: 'Pending',
+        ...(proofUrl && { paymentProofUrl: proofUrl }),
         createdAt: Date.now()
       };
+      const cleanDbOrder = JSON.parse(JSON.stringify(dbOrder));
+      
       // Ignore errors for saving to firestore so it doesn't block the checkout.
-      addOrder(dbOrder).catch(console.error);
+      if (tenantId) {
+        addOrder(tenantId, cleanDbOrder).catch(console.error);
+      }
     } catch (e) {
       console.error('Failed to create order record:', e);
     }
@@ -241,9 +287,24 @@ export default function Cart({ settings }: CartProps) {
             className="fixed top-0 right-0 h-[100dvh] w-full sm:w-[500px] bg-bg-card border-l border-white/5 z-[60] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.5)]"
           >
             <div className="p-3 sm:p-5 flex items-center justify-between border-b border-white/5 bg-bg-dark flex-shrink-0">
-              <div>
+              <div className="flex items-center gap-3">
+                {checkoutPhase === 'payment' && !isOrderSent && (
+                  <button 
+                    onClick={() => {
+                      setCheckoutPhase('cart');
+                      setError(null);
+                    }}
+                    className="p-1.5 text-white/50 hover:text-white bg-white/5 hover:bg-white/10 transition-all rounded-full flex-shrink-0"
+                  >
+                    <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                )}
                 <h2 className="text-xl sm:text-2xl font-display uppercase text-white leading-none">
-                  {t('your')} <span className="text-accent underline underline-offset-4">{t('order')}</span>
+                  {checkoutPhase === 'payment' && !isOrderSent ? (
+                    <>PAYMENT <span className="text-accent underline underline-offset-4">METHOD</span></>
+                  ) : (
+                    <>{t('your')} <span className="text-accent underline underline-offset-4">{t('order')}</span></>
+                  )}
                 </h2>
               </div>
               <button
@@ -255,6 +316,81 @@ export default function Cart({ settings }: CartProps) {
             </div>
 
             <div className="flex-grow overflow-y-auto p-3 sm:p-5 flex flex-col gap-3 sm:gap-5 scroll-smooth overflow-x-hidden">
+              {/* Checkout Phases */}
+              <AnimatePresence mode="wait" initial={false}>
+                {checkoutPhase === 'payment' && !isOrderSent ? (
+                  <motion.div 
+                    key="payment-phase"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="flex-grow flex flex-col gap-6"
+                  >
+                    <div className="bg-black/30 border border-white/10 rounded-2xl p-6 text-center">
+                      <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest mb-2">Total Amount</p>
+                      <p className="text-4xl font-display text-accent">€{finalTotal.toFixed(2)}</p>
+                    </div>
+
+                    <div className="space-y-6">
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4">
+                        <h3 className="font-display uppercase text-lg text-white border-b border-white/10 pb-3">Pay with MB WAY</h3>
+                        {settings?.mbWayNumber ? (
+                          <div className="space-y-4">
+                            <p className="text-xs text-white/60 font-medium">Please send the exact total amount to the given MB WAY number below.</p>
+                            <div className="bg-black/40 p-4 rounded-xl flex items-center justify-between border border-white/5">
+                              <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Phone Number</span>
+                              <span className="font-display tracking-wider text-xl text-white">{settings.mbWayNumber}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-yellow-500/80 font-medium">MB WAY number is not configured in settings.</p>
+                        )}
+                      </div>
+
+                      <div className="bg-white/5 border border-white/10 p-5 rounded-2xl space-y-4">
+                        <h3 className="font-display uppercase text-lg text-white border-b border-white/10 pb-3 flex items-center justify-between">
+                          <span>Upload Proof of Payment</span>
+                          <span className="text-[10px] font-sans text-white/30 tracking-widest bg-white/5 px-2 py-1 rounded-full">OPTIONAL</span>
+                        </h3>
+                        <p className="text-xs text-white/60 font-medium pb-2">Providing a screenshot speeds up order processing.</p>
+                        
+                        <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all hover:bg-white/5 bg-black/20 group overflow-hidden">
+                          {paymentProof ? (
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm group-hover:bg-black/80 transition-colors">
+                              <div className="text-center">
+                                <ImageIcon className="w-8 h-8 text-accent mx-auto mb-2 opacity-80" />
+                                <span className="text-xs font-bold text-white truncate max-w-[200px] block px-4">{paymentProof.name}</span>
+                                <span className="text-[10px] text-white/40 mt-1 uppercase tracking-widest block">Click to change</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                              <Upload className="w-8 h-8 mb-3 text-white/20 group-hover:text-accent transition-colors" />
+                              <p className="mb-1 text-xs text-white/50 font-bold uppercase tracking-widest"><span className="text-accent font-black">Click to upload</span></p>
+                            </div>
+                          )}
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            className="hidden" 
+                            onChange={(e) => {
+                              if (e.target.files && e.target.files[0]) {
+                                setPaymentProof(e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div 
+                    key="cart-phase"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="flex-grow flex flex-col gap-3 sm:gap-5"
+                  >
               {/* Order Type & Customer Details - Now inside scrollable area */}
               {!isOrderSent && items.length > 0 && (
                 <div className="p-3 bg-white/[0.02] border border-white/5 rounded-xl space-y-3 sm:space-y-4 mb-1 sm:mb-2 text-[9px] sm:text-[10px]">
@@ -518,6 +654,9 @@ export default function Cart({ settings }: CartProps) {
                   ))
                 )}
               </AnimatePresence>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {!isOrderSent && items.length > 0 && (
@@ -573,15 +712,20 @@ export default function Cart({ settings }: CartProps) {
                 <motion.button
                   whileHover={settings?.isOpen ? { scale: 1.01 } : {}}
                   whileActive={settings?.isOpen ? { scale: 0.99 } : {}}
-                  onClick={handleCheckout}
-                  disabled={!settings?.isOpen}
+                  onClick={checkoutPhase === 'cart' ? handleProceedToPayment : handleCheckout}
+                  disabled={!settings?.isOpen || isUploading}
                   className={`w-full font-black uppercase tracking-[0.2em] py-3.5 sm:py-4.5 transition-all flex justify-center items-center gap-2.5 group rounded-full text-[9px] sm:text-[10px] ${settings?.isOpen ? 'bg-accent text-black hover:bg-white' : 'bg-red-500/20 text-red-500 cursor-not-allowed opacity-80'}`}
                 >
                   {settings?.isOpen ? (
-                    <>
-                      {t('orderViaWhatsapp')}
-                      <Send className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1.5 transition-transform duration-500" />
-                    </>
+                    checkoutPhase === 'payment' ? (
+                      isUploading ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> UPLOADING & SENDING...</>
+                      ) : (
+                        <>CONFIRM & SEND WHATSAPP <Send className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:translate-x-1.5 transition-transform duration-500" /></>
+                      )
+                    ) : (
+                      <>PROCEED TO PAYMENT <ArrowLeft className="w-3 h-3 sm:w-3.5 sm:h-3.5 rotate-180 group-hover:translate-x-1.5 transition-transform duration-500" /></>
+                    )
                   ) : (
                     t('storeClosedBtn')
                   )}

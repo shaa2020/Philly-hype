@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Order, OrderStatus } from '../../types';
 import { updateOrderStatus } from '../../lib/firestore';
 import { MapPin, Phone, Clock, FileText, CheckCircle2, ChevronDown, Trash2, BellRing } from 'lucide-react';
+import { useTenant } from '../../context/TenantContext';
 
 interface AdminOrdersManagerProps {
   orders: Order[];
@@ -10,6 +11,7 @@ interface AdminOrdersManagerProps {
 const STATUSES: OrderStatus[] = ['Pending', 'Preparing', 'Ready', 'Delivered', 'Cancelled'];
 
 export default function AdminOrdersManager({ orders }: AdminOrdersManagerProps) {
+  const { tenantId } = useTenant();
   const [viewFilter, setViewFilter] = React.useState<'active' | 'past'>('active');
   const prevOrdersCount = useRef(orders.length);
 
@@ -40,8 +42,8 @@ export default function AdminOrdersManager({ orders }: AdminOrdersManagerProps) 
   }, [orders.length]);
 
   const handleStatusChange = async (orderId: string | undefined, newStatus: OrderStatus) => {
-    if (!orderId) return;
-    await updateOrderStatus(orderId, newStatus);
+    if (!orderId || !tenantId) return;
+    await updateOrderStatus(tenantId, orderId, newStatus);
   };
 
   const getStatusColor = (status: OrderStatus) => {
@@ -168,6 +170,14 @@ export default function AdminOrdersManager({ orders }: AdminOrdersManagerProps) 
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Total</span>
                   <span className="font-bold text-accent text-lg">€{order.totalPrice.toFixed(2)}</span>
                 </div>
+                {order.paymentProofUrl && (
+                  <div className="mt-3 bg-white/5 rounded-lg p-3">
+                    <span className="block text-[10px] font-bold uppercase tracking-widest text-white/40 mb-2">Payment Proof</span>
+                    <a href={order.paymentProofUrl} target="_blank" rel="noreferrer" className="block max-w-[150px] border border-white/10 rounded overflow-hidden hover:opacity-80 transition-opacity">
+                      <img src={order.paymentProofUrl} alt="Payment Proof" className="w-full h-auto object-cover" />
+                    </a>
+                  </div>
+                )}
               </div>
 
               {/* Actions Right */}

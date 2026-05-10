@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth } from '../../lib/firebase';
-import { Building2, KeyRound, ArrowLeft } from 'lucide-react';
+import { Building2, KeyRound, ArrowLeft, UserPlus } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('iamshanto7860@gmail.com');
   const [password, setPassword] = useState('78607860');
+  const [isSignUp, setIsSignUp] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -14,7 +15,11 @@ export default function Login() {
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
       if (user) {
-        navigate('/admin/dashboard');
+        if (user.email === 'iamshanto7860@gmail.com') {
+          navigate({ pathname: '/superadmin', search: window.location.search });
+        } else {
+          navigate({ pathname: '/admin/dashboard', search: window.location.search });
+        }
       }
     });
     return unsub;
@@ -26,7 +31,11 @@ export default function Login() {
     setLoading(true);
     
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      if (isSignUp) {
+        await createUserWithEmailAndPassword(auth, email, password);
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+      }
     } catch (err: any) {
       setError(err.message || 'Authentication failed');
       setLoading(false);
@@ -51,7 +60,7 @@ export default function Login() {
         
         <h2 className="text-2xl font-black uppercase tracking-widest text-center mb-2">Admin Access</h2>
         <p className="text-white/50 text-xs text-center uppercase tracking-widest mb-8">
-          Sign in to manage your restaurant
+          {isSignUp ? "Register a new restaurant admin account" : "Sign in to manage your restaurant"}
         </p>
         
         {error && (
@@ -91,11 +100,22 @@ export default function Login() {
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
+            ) : isSignUp ? (
+              <><UserPlus className="w-5 h-5" /> Register</>
             ) : (
               <><KeyRound className="w-5 h-5" /> Sign In</>
             )}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <button
+            onClick={() => setIsSignUp(!isSignUp)}
+            className="text-xs font-bold uppercase tracking-widest text-white/50 hover:text-white transition-colors"
+          >
+            {isSignUp ? "Already have an account? Sign In" : "Need an account? Register"}
+          </button>
+        </div>
       </div>
     </div>
   );

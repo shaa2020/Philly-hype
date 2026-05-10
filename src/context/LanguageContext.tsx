@@ -73,6 +73,7 @@ export const translations: Translations = {
   closed: { en: 'Closed', pt: 'Fechado' },
   
   // Home
+  ourStory: { en: 'Our Story', pt: 'A Nossa História' },
   seasonalDrop: { en: 'Seasonal Drop', pt: 'Edição Sazonal' },
   theOutlaw: { en: 'The', pt: 'O' }, // Actually, I'll translate 'The ' differently.
   outlaw: { en: 'Outlaw', pt: 'Outlaw' },

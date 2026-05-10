@@ -10,28 +10,20 @@ import Login from './pages/admin/Login';
 import Dashboard from './pages/admin/Dashboard';
 import { CartProvider } from './context/CartContext';
 import { getSettings, updateSettings } from './lib/firestore';
-
+import { useTenant } from './context/TenantContext';
 import { LanguageProvider } from './context/LanguageContext';
 
+import SuperAdminDashboard from './pages/superadmin/Dashboard';
+
 export default function App() {
+  const { tenantId, loading, error } = useTenant();
+
   useEffect(() => {
-    // One-time check and update for existing seeded data
-    const syncAddress = async () => {
-      try {
-        const settings = await getSettings();
-        if (settings && settings.address === '123 Hype Street, Foodville') {
-          await updateSettings({
-            ...settings,
-            restaurantName: 'PHILLY HYPE',
-            address: 'R. Melvin Jones 10B, 1600-867 Lisboa'
-          });
-        }
-      } catch (err) {
-        console.error('Failed to sync address', err);
-      }
-    };
-    syncAddress();
-  }, []);
+    // Sync address is removed because unauthenticated users cannot update settings
+  }, [tenantId]);
+
+  if (loading) return null;
+  if (error) return <div className="h-screen w-full flex items-center justify-center bg-zinc-950 text-white font-mono">{error}</div>;
 
   return (
     <LanguageProvider>
@@ -42,6 +34,7 @@ export default function App() {
             <Route path="/admin" element={<Login />} />
             <Route path="/admin/login" element={<Navigate to="/admin" replace />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/superadmin" element={<SuperAdminDashboard />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

@@ -11,22 +11,52 @@ import { subscribeToSettings, subscribeToMenu } from '../lib/firestore';
 import { RestaurantSettings, MenuItem } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { useLanguage } from '../context/LanguageContext';
+import { Helmet } from 'react-helmet-async';
+import { useTenant } from '../context/TenantContext';
 
 export default function Home() {
+  const { tenantId } = useTenant();
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
 
+  const demoSettings: RestaurantSettings = {
+    restaurantName: 'PHILLY HYPE (DEMO)',
+    heroTitle: 'EXPERIENCE THE HYPE',
+    heroSubtitle: 'The best Philly Cheesesteaks & Smash Burgers.',
+    contactEmail: 'demo@example.com',
+    address: 'Demo Street, 123',
+    isOpen: true,
+    whatsappNumber: '',
+    mbWayNumber: '',
+    deliveryFee: 2.50,
+    promoBannerEnabled: true,
+    promoBannerText: '🔥 FREE DELIVERY ON ORDERS OVER €30 🔥',
+    storyEnabled: true,
+    storyHeadline: 'The Start of an Era',
+    storyDescription: 'Crafting the perfect Philly Cheesesteak takes more than just good ingredients. It takes passion, dedication, and a bit of outlaw spirit.',
+    highlightEnabled: true,
+    highlightTitle: 'The Outlaw',
+    highlightSubtitle: 'Loaded Fries',
+    highlightDescription: 'Crispy fries topped with shaved ribeye, cheese sauce, and scallions.',
+    currency: 'EUR'
+  };
+
+  const demoMenu: MenuItem[] = [
+    { id: '1', name: 'Philly Classic', price: 13.45, description: 'Thinly sliced ribeye, caramelized onions, provolone cheese.', category: 'Cheesesteaks', imageURL: 'https://images.unsplash.com/photo-1614548483848-18e310034a2e?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() },
+    { id: '2', name: 'Classic Smash Double', price: 11.45, description: 'Two smashed patties, American cheese, house sauce.', category: 'Burgers', imageURL: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() }
+  ];
+
   useEffect(() => {
-    const unsubSettings = subscribeToSettings((data) => {
+    if (!tenantId) return;
+
+    const unsubSettings = subscribeToSettings(tenantId, (data) => {
       setSettings(data);
     });
     
-    // Simulate a minimum loading time for a smoother intro effect, or just let it load quickly.
-    // For immediate rendering, we rely on the DB, but a minimum 500ms prevents a jarring flash.
     const startTime = Date.now();
-    const unsubMenu = subscribeToMenu((data) => {
+    const unsubMenu = subscribeToMenu(tenantId, (data) => {
       setMenuItems(data);
       const elapsed = Date.now() - startTime;
       if (elapsed < 500) {
@@ -40,10 +70,20 @@ export default function Home() {
       unsubSettings();
       unsubMenu();
     };
-  }, []);
+  }, [tenantId]);
+
+  if (!tenantId) return null;
+
+  const displaySettings = settings || (tenantId === 'default' ? demoSettings : null);
+  const displayMenu = menuItems.length > 0 ? menuItems : (tenantId === 'default' ? demoMenu : []);
 
   return (
     <>
+      <Helmet>
+        <title>{displaySettings?.restaurantName ? `${t('menuWord')} | ${displaySettings.restaurantName}` : t('menuWord')}</title>
+        <meta name="description" content={t('curatedHype')} />
+      </Helmet>
+      
       <AnimatePresence mode="wait">
         {loading && (
           <motion.div 
@@ -77,14 +117,14 @@ export default function Home() {
       </AnimatePresence>
 
       <div className="min-h-screen flex flex-col bg-bg-dark relative">
-        <Navbar restaurantName={settings?.restaurantName || 'PHILLY HYPE'} />
+        <Navbar restaurantName={displaySettings?.restaurantName || 'PHILLY HYPE'} />
         
         <main className="flex-grow">
-          <Hero settings={settings} />
+          <Hero settings={displaySettings} />
           
           {/* Promotional Banner */}
           <AnimatePresence>
-            {settings?.promoBannerEnabled && settings?.promoBannerText && (
+            {displaySettings?.promoBannerEnabled && displaySettings?.promoBannerText && (
               <motion.div 
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
@@ -101,14 +141,14 @@ export default function Home() {
                       <div key={groupIndex} className="flex items-center gap-8 px-4">
                         {[...Array(6)].map((_, i) => (
                           <div key={i} className="flex items-center gap-8">
-                            {settings.promoBannerLink ? (
-                              <a href={settings.promoBannerLink} target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity whitespace-nowrap flex items-center gap-8">
-                                {settings.promoBannerText}
+                            {displaySettings.promoBannerLink ? (
+                              <a href={displaySettings.promoBannerLink} target="_blank" rel="noopener noreferrer" className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] hover:opacity-70 transition-opacity whitespace-nowrap flex items-center gap-8">
+                                {displaySettings.promoBannerText}
                                 <span className="w-1.5 h-1.5 bg-black rounded-full opacity-30" />
                               </a>
                             ) : (
                               <span className="text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] whitespace-nowrap flex items-center gap-8">
-                                {settings.promoBannerText}
+                                {displaySettings.promoBannerText}
                                 <span className="w-1.5 h-1.5 bg-black rounded-full opacity-30" />
                               </span>
                             )}
@@ -122,13 +162,45 @@ export default function Home() {
             )}
           </AnimatePresence>
 
+          {/* Our Story Section */}
+          {displaySettings?.storyEnabled && (
+            <section className="py-24 sm:py-32 bg-bg-dark border-t border-white/5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-1/3 h-full bg-accent/5 rounded-bl-[100px] blur-3xl pointer-events-none" />
+              <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-12 sm:gap-24 items-center relative z-10">
+                <div className="order-2 md:order-1 relative">
+                  <div className="absolute -inset-4 border border-white/5 rounded-2xl transform -rotate-2 bg-white/5" />
+                  <img 
+                    src={displaySettings.storyImage || "https://images.unsplash.com/photo-1549488344-c5aab08e2f0d?q=80&w=1200&auto=format&fit=crop"}
+                    alt="Our Story"
+                    className="relative w-full aspect-[4/5] object-cover rounded-xl grayscale hover:grayscale-0 transition-all duration-700"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+                <div className="order-1 md:order-2 space-y-8">
+                  <div>
+                    <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em] mb-4 block">
+                      {t('ourStory') || 'Our Story'}
+                    </span>
+                    <h2 className="text-4xl sm:text-5xl md:text-6xl font-display text-white uppercase tracking-wider leading-[1.1]">
+                      {displaySettings.storyHeadline || "The Start of an Era"}
+                    </h2>
+                  </div>
+                  <div className="w-16 h-1 bg-accent/50" />
+                  <p className="text-white/60 text-sm sm:text-base tracking-wide font-light leading-relaxed whitespace-pre-wrap">
+                    {displaySettings.storyDescription || "Crafting the perfect Philly Cheesesteak takes more than just good ingredients. It takes passion, dedication, and a bit of outlaw spirit. We set out to redefine the classic, bringing bold flavors and street-style energy to every bite."}
+                  </p>
+                </div>
+              </div>
+            </section>
+          )}
+
           {/* Featured Section */}
-          {(settings?.highlightEnabled ?? true) && (
+          {(displaySettings?.highlightEnabled ?? true) && (
             <section className="py-32 glass-morphism mx-6 mb-32 border border-white/5 relative overflow-hidden group rounded-3xl">
               <div className="absolute inset-0 z-0">
                 <img 
-                  src={settings?.highlightImage || "https://plus.unsplash.com/premium_photo-1664478291780-0c67d5fb15e8?q=80&w=2000&auto=format&fit=crop"}
-                  alt={settings?.highlightTitle || "Featured Item"}
+                  src={displaySettings?.highlightImage || "https://plus.unsplash.com/premium_photo-1664478291780-0c67d5fb15e8?q=80&w=2000&auto=format&fit=crop"}
+                  alt={displaySettings?.highlightTitle || "Featured Item"}
                   className="w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-1000"
                   referrerPolicy="no-referrer"
                 />
@@ -137,30 +209,30 @@ export default function Home() {
               
               <div className="relative z-10 max-w-7xl mx-auto px-12 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                 <div>
-                  {settings?.highlightTag && (
+                  {displaySettings?.highlightTag && (
                     <span className="text-accent text-[10px] font-black uppercase tracking-[0.4em] mb-4 block">
-                      {settings?.highlightTag}
+                      {displaySettings?.highlightTag}
                     </span>
                   )}
                   <h2 className="text-5xl sm:text-6xl md:text-7xl font-display uppercase text-white leading-[1.1] mb-8 break-words">
-                    <span className="block mb-2">{settings?.highlightTitle || t('theOutlaw')}</span>
-                    {settings?.highlightSubtitle && (
+                    <span className="block mb-2">{displaySettings?.highlightTitle || t('theOutlaw')}</span>
+                    {displaySettings?.highlightSubtitle && (
                       <span className="text-accent relative inline-block">
-                        {settings?.highlightSubtitle}
+                        {displaySettings?.highlightSubtitle}
                         <span className="absolute -bottom-2 sm:-bottom-4 left-0 w-full h-[4px] bg-accent"></span>
                       </span>
                     )}
                   </h2>
-                  {(settings?.highlightDescription || t('outlawDesc')) && (
+                  {(displaySettings?.highlightDescription || t('outlawDesc')) && (
                     <p className="text-white/60 text-lg uppercase tracking-wide font-light mb-12 max-w-md">
-                      {settings?.highlightDescription || t('outlawDesc')} 
+                      {displaySettings?.highlightDescription || t('outlawDesc')} 
                     </p>
                   )}
                   <button 
                     onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
                     className="px-10 py-4 bg-white text-black font-extrabold uppercase tracking-widest hover:bg-accent transition-all rounded-full hover:shadow-[0_0_20px_rgba(255,107,0,0.3)]"
                   >
-                    {settings?.highlightButtonText || t('snagItNow')}
+                    {displaySettings?.highlightButtonText || t('snagItNow')}
                   </button>
                 </div>
               </div>
@@ -168,13 +240,13 @@ export default function Home() {
           )}
 
         <HowItWorks />
-        <MenuGrid items={menuItems} />
+        <MenuGrid items={displayMenu} />
         <Reviews />
-        <Contact settings={settings} />
+        <Contact settings={displaySettings} />
       </main>
 
-      <Footer settings={settings} />
-      <Cart settings={settings} />
+      <Footer settings={displaySettings} />
+      <Cart settings={displaySettings} />
       </div>
     </>
   );

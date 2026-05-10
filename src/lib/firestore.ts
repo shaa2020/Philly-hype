@@ -27,34 +27,35 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   };
   console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
+  // Do not throw to avoid crashing the entire React app
+  // throw new Error(JSON.stringify(errInfo));
 }
 
-export const getSettings = async (): Promise<RestaurantSettings | null> => {
+export const getSettings = async (tenantId: string): Promise<RestaurantSettings | null> => {
   try {
-    const docRef = doc(db, 'settings', 'global');
+    const docRef = doc(db, 'restaurants', tenantId, 'settings', 'global');
     const snap = await getDoc(docRef);
     if (snap.exists()) {
       return { id: snap.id, ...snap.data() } as RestaurantSettings;
     }
     return null;
   } catch (error) {
-    handleFirestoreError(error, OperationType.GET, 'settings/global');
+    handleFirestoreError(error, OperationType.GET, `restaurants/${tenantId}/settings/global`);
     return null;
   }
 };
 
-export const updateSettings = async (settings: Omit<RestaurantSettings, 'id'>) => {
+export const updateSettings = async (tenantId: string, settings: Omit<RestaurantSettings, 'id'>) => {
   try {
-    const docRef = doc(db, 'settings', 'global');
+    const docRef = doc(db, 'restaurants', tenantId, 'settings', 'global');
     await setDoc(docRef, settings);
   } catch (error) {
-    handleFirestoreError(error, OperationType.WRITE, 'settings/global');
+    handleFirestoreError(error, OperationType.WRITE, `restaurants/${tenantId}/settings/global`);
   }
 };
 
-export const subscribeToSettings = (callback: (settings: RestaurantSettings | null) => void) => {
-  const docRef = doc(db, 'settings', 'global');
+export const subscribeToSettings = (tenantId: string, callback: (settings: RestaurantSettings | null) => void) => {
+  const docRef = doc(db, 'restaurants', tenantId, 'settings', 'global');
   return onSnapshot(docRef, (snap) => {
     if (snap.exists()) {
       callback({ id: snap.id, ...snap.data() } as RestaurantSettings);
@@ -62,12 +63,12 @@ export const subscribeToSettings = (callback: (settings: RestaurantSettings | nu
       callback(null);
     }
   }, (error) => {
-    handleFirestoreError(error, OperationType.GET, 'settings/global');
+    handleFirestoreError(error, OperationType.GET, `restaurants/${tenantId}/settings/global`);
   });
 };
 
-export const subscribeToMenu = (callback: (items: MenuItem[]) => void) => {
-  const q = query(collection(db, 'menu'), orderBy('createdAt', 'desc'));
+export const subscribeToMenu = (tenantId: string, callback: (items: MenuItem[]) => void) => {
+  const q = query(collection(db, 'restaurants', tenantId, 'menu'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
     const items: MenuItem[] = [];
     snapshot.forEach((doc) => {
@@ -75,40 +76,40 @@ export const subscribeToMenu = (callback: (items: MenuItem[]) => void) => {
     });
     callback(items);
   }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, 'menu');
+    handleFirestoreError(error, OperationType.LIST, `restaurants/${tenantId}/menu`);
   });
 };
 
-export const addMenuItem = async (item: Omit<MenuItem, 'id'>) => {
+export const addMenuItem = async (tenantId: string, item: Omit<MenuItem, 'id'>) => {
   try {
-    const newDocRef = doc(collection(db, 'menu'));
+    const newDocRef = doc(collection(db, 'restaurants', tenantId, 'menu'));
     await setDoc(newDocRef, item);
   } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, 'menu');
+    handleFirestoreError(error, OperationType.CREATE, `restaurants/${tenantId}/menu`);
   }
 };
 
-export const updateMenuItem = async (id: string, item: Partial<Omit<MenuItem, 'id'>>) => {
+export const updateMenuItem = async (tenantId: string, id: string, item: Partial<Omit<MenuItem, 'id'>>) => {
   try {
-    const docRef = doc(db, 'menu', id);
+    const docRef = doc(db, 'restaurants', tenantId, 'menu', id);
     await updateDoc(docRef, item);
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `menu/${id}`);
+    handleFirestoreError(error, OperationType.UPDATE, `restaurants/${tenantId}/menu/${id}`);
   }
 };
 
-export const deleteMenuItem = async (id: string) => {
+export const deleteMenuItem = async (tenantId: string, id: string) => {
   try {
-    const docRef = doc(db, 'menu', id);
+    const docRef = doc(db, 'restaurants', tenantId, 'menu', id);
     await deleteDoc(docRef);
   } catch (error) {
-    handleFirestoreError(error, OperationType.DELETE, `menu/${id}`);
+    handleFirestoreError(error, OperationType.DELETE, `restaurants/${tenantId}/menu/${id}`);
   }
 };
 
-export const uploadImage = async (file: File): Promise<string> => {
+export const uploadImage = async (tenantId: string, file: File): Promise<string> => {
   try {
-    const storageRef = ref(storage, `menu/${Date.now()}_${file.name}`);
+    const storageRef = ref(storage, `restaurants/${tenantId}/menu/${Date.now()}_${file.name}`);
     await uploadBytes(storageRef, file);
     return await getDownloadURL(storageRef);
   } catch (error) {
@@ -117,26 +118,71 @@ export const uploadImage = async (file: File): Promise<string> => {
   }
 };
 
-export const addOrder = async (order: Omit<Order, 'id'>) => {
+export const uploadPaymentProof = async (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_WIDTH) {
+            height *= MAX_WIDTH / width;
+            width = MAX_WIDTH;
+          }
+        } else {
+          if (height > MAX_HEIGHT) {
+            width *= MAX_HEIGHT / height;
+            height = MAX_HEIGHT;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error("Could not get canvas context"));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Compress to JPEG with 0.6 quality to ensure it's < 1MB for Firestore
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+        resolve(dataUrl);
+      };
+      img.onerror = () => reject(new Error("Failed to load image"));
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsDataURL(file);
+  });
+};
+
+export const addOrder = async (tenantId: string, order: Omit<Order, 'id'>) => {
   try {
-    const newDocRef = doc(collection(db, 'orders'));
+    const newDocRef = doc(collection(db, 'restaurants', tenantId, 'orders'));
     await setDoc(newDocRef, order);
   } catch (error) {
-    handleFirestoreError(error, OperationType.CREATE, 'orders');
+    handleFirestoreError(error, OperationType.CREATE, `restaurants/${tenantId}/orders`);
   }
 };
 
-export const updateOrderStatus = async (id: string, status: OrderStatus) => {
+export const updateOrderStatus = async (tenantId: string, id: string, status: OrderStatus) => {
   try {
-    const docRef = doc(db, 'orders', id);
+    const docRef = doc(db, 'restaurants', tenantId, 'orders', id);
     await updateDoc(docRef, { status });
   } catch (error) {
-    handleFirestoreError(error, OperationType.UPDATE, `orders/${id}`);
+    handleFirestoreError(error, OperationType.UPDATE, `restaurants/${tenantId}/orders/${id}`);
   }
 };
 
-export const subscribeToOrders = (callback: (orders: Order[]) => void) => {
-  const q = query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+export const subscribeToOrders = (tenantId: string, callback: (orders: Order[]) => void) => {
+  const q = query(collection(db, 'restaurants', tenantId, 'orders'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
     const orders: Order[] = [];
     snapshot.forEach((doc) => {
@@ -144,6 +190,6 @@ export const subscribeToOrders = (callback: (orders: Order[]) => void) => {
     });
     callback(orders);
   }, (error) => {
-    handleFirestoreError(error, OperationType.LIST, 'orders');
+    handleFirestoreError(error, OperationType.LIST, `restaurants/${tenantId}/orders`);
   });
 };

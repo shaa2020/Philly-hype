@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { RestaurantSettings, DeliveryZone } from '../../types';
 import { updateSettings } from '../../lib/firestore';
-import { Save, Building, Phone, Store, CreditCard, Utensils, MessageSquare, MapPin, Plus, Trash2, Star, Upload } from 'lucide-react';
+import { Save, Building, Phone, Store, CreditCard, Utensils, MessageSquare, MapPin, Plus, Trash2, Star, Upload, QrCode } from 'lucide-react';
+import QRCode from 'react-qr-code';
+import { useTenant } from '../../context/TenantContext';
 
 interface AdminSettingsProps {
   settings: RestaurantSettings | null;
 }
 
 export default function AdminSettings({ settings }: AdminSettingsProps) {
+  const { tenantId } = useTenant();
   const [formData, setFormData] = useState<Partial<RestaurantSettings>>(settings || {
     restaurantName: '',
     heroTitle: '',
@@ -20,13 +23,14 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
     deliveryZones: []
   });
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'visuals' | 'delivery'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'visuals' | 'delivery' | 'qr'>('general');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tenantId) return;
     setSaving(true);
     try {
-      await updateSettings(formData as Omit<RestaurantSettings, 'id'>);
+      await updateSettings(tenantId, formData as Omit<RestaurantSettings, 'id'>);
     } catch (error) {
       alert("Error saving settings");
     } finally {
@@ -82,6 +86,13 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
           className={`flex-1 py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'delivery' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
         >
           Delivery
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab('qr')}
+          className={`flex-1 py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'qr' ? 'bg-white/10 text-white shadow-sm' : 'text-white/40 hover:text-white/70'}`}
+        >
+          QR Code
         </button>
       </div>
 
@@ -413,6 +424,70 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
           </div>
         </div>
 
+        {/* Our Story Settings */}
+        <div className="space-y-6">
+          <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-6 flex items-center gap-2">
+            <Building className="w-4 h-4 text-accent" /> Our Story Settings
+          </h3>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl">
+              <div>
+                <span className="text-white font-bold uppercase tracking-widest text-sm">Enable Our Story Section</span>
+                <p className="text-white/40 text-[10px] sm:text-xs uppercase tracking-widest mt-1">Show a section describing the restaurant's story</p>
+              </div>
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input 
+                  type="checkbox" 
+                  className="sr-only peer"
+                  checked={formData.storyEnabled ?? false}
+                  onChange={(e) => setFormData({...formData, storyEnabled: e.target.checked})}
+                />
+                <div className="w-14 h-7 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-accent"></div>
+              </label>
+            </div>
+            
+            {(formData.storyEnabled ?? false) && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-6 border border-white/5 rounded-2xl bg-white/5">
+                <div className="space-y-4 md:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Image URL</label>
+                  <input 
+                    type="url" 
+                    value={formData.storyImage || ''}
+                    onChange={(e) => setFormData({...formData, storyImage: e.target.value})}
+                    placeholder="https://..."
+                    className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-white/20"
+                  />
+                  {formData.storyImage && (
+                    <div className="mt-4 w-full max-w-[200px] aspect-[4/5] rounded-2xl overflow-hidden border border-white/10 bg-black/50 mx-auto md:mx-0">
+                      <img src={formData.storyImage} alt="Story Preview" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Headline</label>
+                  <input 
+                    type="text" 
+                    value={formData.storyHeadline || ''}
+                    onChange={(e) => setFormData({...formData, storyHeadline: e.target.value})}
+                    placeholder="e.g. The Start of an Era"
+                    className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-white/20"
+                  />
+                </div>
+                <div className="space-y-2 md:col-span-2">
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Description</label>
+                  <textarea 
+                    value={formData.storyDescription || ''}
+                    onChange={(e) => setFormData({...formData, storyDescription: e.target.value})}
+                    placeholder="Describe your story..."
+                    rows={4}
+                    className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-white/20 resize-none"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Social Media Links */}
         <div className="space-y-6">
           <h3 className="text-sm font-bold uppercase tracking-widest text-white/50 mb-6 flex items-center gap-2">
@@ -603,6 +678,68 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
             ))}
           </div>
         </div>
+        </div>
+        
+        {/* QR Code Section */}
+        <div className={activeTab === 'qr' ? 'block' : 'hidden'}>
+          <div className="bg-white/5 border border-white/10 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-6">
+            <div className="bg-white p-6 rounded-2xl">
+              <QRCode 
+                value={window.location.origin} 
+                size={256}
+                level="H"
+                className="w-full h-auto max-w-[256px]"
+              />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-display uppercase tracking-wider text-white">Menu QR Code</h3>
+              <p className="text-sm text-white/60 max-w-sm mx-auto">
+                Print this QR code and place it on your tables or storefront. Customers can scan it to view the menu and place orders directly from their phones.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const svg = document.querySelector('svg');
+                if (!svg) return;
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const data = (new XMLSerializer()).serializeToString(svg);
+                const img = new Image();
+                const svgBlob = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
+                const url = URL.createObjectURL(svgBlob);
+                img.onload = function () {
+                  canvas.width = img.width + 40;
+                  canvas.height = img.height + 40;
+                  if (ctx) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 20, 20);
+                    URL.revokeObjectURL(url);
+                    const imgURI = canvas
+                        .toDataURL('image/png')
+                        .replace('image/png', 'image/octet-stream');
+                    
+                    const evt = new MouseEvent('click', {
+                      view: window,
+                      bubbles: false,
+                      cancelable: true
+                    });
+                    
+                    const a = document.createElement('a');
+                    a.setAttribute('download', 'menu-qr-code.png');
+                    a.setAttribute('href', imgURI);
+                    a.setAttribute('target', '_blank');
+                    a.dispatchEvent(evt);
+                  }
+                };
+                img.src = url;
+              }}
+              className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-lg font-bold uppercase tracking-widest text-xs transition-colors flex items-center gap-2"
+            >
+              <QrCode className="w-4 h-4" /> Download QR Code PNG
+            </button>
+          </div>
         </div>
 
         {/* Form Actions */}

@@ -1,3 +1,53 @@
+export interface TenantSettings {
+  id?: string;
+  name: string;
+  domain: string;
+  ownerEmail: string;
+  status: 'active' | 'inactive' | 'suspended';
+  monthlyFee?: number;
+  billingStatus?: 'paid' | 'unpaid' | 'overdue';
+  lastPaymentDate?: number;
+  paymentDueDate?: number;
+  createdAt: number;
+  phone?: string;
+  subscriptionPlan?: string;
+  features?: {
+    bookingSystem: boolean;
+    qrMenu: boolean;
+    whatsappOrdering: boolean;
+    deliverySystem: boolean;
+  };
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  features: string[];
+  isPopular?: boolean;
+}
+
+export interface PaymentTransaction {
+  id: string;
+  tenantId: string;
+  tenantName: string;
+  amount: number;
+  status: 'paid' | 'pending' | 'failed' | 'refunded';
+  date: number;
+}
+
+export interface SupportTicket {
+  id: string;
+  tenantId: string;
+  tenantName: string;
+  subject: string;
+  message: string;
+  status: 'open' | 'resolved';
+  priority: 'low' | 'medium' | 'high';
+  createdAt: number;
+}
+
+
 export interface DeliveryZone {
   name: string;
   zipCodes: string;
@@ -30,6 +80,10 @@ export interface RestaurantSettings {
   highlightDescription?: string;
   highlightButtonText?: string;
   highlightImage?: string;
+  storyEnabled?: boolean;
+  storyHeadline?: string;
+  storyDescription?: string;
+  storyImage?: string;
   instagramUrl?: string;
   facebookUrl?: string;
   tiktokUrl?: string;
@@ -80,5 +134,6 @@ export interface Order {
   totalPrice: number;
   deliveryFee: number;
   status: OrderStatus;
+  paymentProofUrl?: string;
   createdAt: number;
 }

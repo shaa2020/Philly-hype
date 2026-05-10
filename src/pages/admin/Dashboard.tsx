@@ -8,8 +8,10 @@ import AdminSettings from '../../components/admin/AdminSettings';
 import AdminMenuManager from '../../components/admin/AdminMenuManager';
 import AdminOrdersManager from '../../components/admin/AdminOrdersManager';
 import { LogOut, LayoutDashboard, Settings, Utensils, Menu, Send } from 'lucide-react';
+import { useTenant } from '../../context/TenantContext';
 
 export default function Dashboard() {
+  const { tenantId } = useTenant();
   const [loadingAuth, setLoadingAuth] = useState(true);
   const [settings, setSettings] = useState<RestaurantSettings | null>(null);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
@@ -19,15 +21,17 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!tenantId) return;
+
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (!user) {
         navigate('/admin');
       } else {
         setLoadingAuth(false);
         try {
-          const currentData = await getSettings();
+          const currentData = await getSettings(tenantId);
           if (!currentData) {
-            await updateSettings({
+            await updateSettings(tenantId, {
               restaurantName: 'PHILLY HYPE',
               heroTitle: 'EXPERIENCE THE HYPE',
               heroSubtitle: 'The best Philly Cheesesteaks & Smash Burgers in town.',
@@ -71,7 +75,7 @@ export default function Dashboard() {
             ];
             
             for (const item of seedData) {
-              await addMenuItem(item);
+              await addMenuItem(tenantId, item);
             }
           }
         } catch (err) {
@@ -80,9 +84,9 @@ export default function Dashboard() {
       }
     });
 
-    const unsubSettings = subscribeToSettings((data) => setSettings(data));
-    const unsubMenu = subscribeToMenu((data) => setMenuItems(data));
-    const unsubOrders = subscribeToOrders((data) => setOrders(data));
+    const unsubSettings = subscribeToSettings(tenantId, (data) => setSettings(data));
+    const unsubMenu = subscribeToMenu(tenantId, (data) => setMenuItems(data));
+    const unsubOrders = subscribeToOrders(tenantId, (data) => setOrders(data));
 
     return () => {
       unsub();
@@ -90,7 +94,9 @@ export default function Dashboard() {
       unsubMenu();
       unsubOrders();
     };
-  }, [navigate]);
+  }, [navigate, tenantId]);
+
+  if (!tenantId) return null;
 
   if (loadingAuth) {
     return (
