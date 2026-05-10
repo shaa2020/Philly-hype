@@ -67,7 +67,7 @@ export const subscribeToSettings = (tenantId: string, callback: (settings: Resta
   });
 };
 
-export const subscribeToMenu = (tenantId: string, callback: (items: MenuItem[]) => void) => {
+export const subscribeToMenu = (tenantId: string, callback: (items: MenuItem[]) => void, onError?: (err: any) => void) => {
   const q = query(collection(db, 'restaurants', tenantId, 'menu'), orderBy('createdAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
     const items: MenuItem[] = [];
@@ -77,6 +77,7 @@ export const subscribeToMenu = (tenantId: string, callback: (items: MenuItem[]) 
     callback(items);
   }, (error) => {
     handleFirestoreError(error, OperationType.LIST, `restaurants/${tenantId}/menu`);
+    if (onError) onError(error);
   });
 };
 

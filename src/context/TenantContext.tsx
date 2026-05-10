@@ -42,12 +42,22 @@ export const TenantProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         if (hostname !== 'localhost' && !hostname.includes('.run.app')) {
           const tenantsRef = collection(db, 'tenants');
           const q = query(tenantsRef, where('domain', '==', hostname));
-          const snapshot = await getDocs(q);
+          
+          try {
+            // Add a timeout to prevent hanging
+            const snapshot = await Promise.race([
+              getDocs(q),
+              new Promise<never>((_, reject) => setTimeout(() => reject(new Error('Timeout fetching tenant')), 5000))
+            ]);
 
-          if (!snapshot.empty) {
-            setTenantId(snapshot.docs[0].id);
-          } else {
-            setError('Restaurant not found for this domain.');
+            if (!snapshot.empty) {
+              setTenantId(snapshot.docs[0].id);
+            } else {
+              setTenantId('default'); // Default fallback instead of error so they can preview the site
+            }
+          } catch (err) {
+            console.error('Tenant fetch failed or timed out:', err);
+            setTenantId('default');
           }
           setLoading(false);
           return;

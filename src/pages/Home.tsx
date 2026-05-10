@@ -56,6 +56,10 @@ export default function Home() {
     });
     
     const startTime = Date.now();
+    const fallbackTimeoutId = setTimeout(() => {
+      setLoading(false);
+    }, 3000); // Fail-safe to ensure loading always disappears
+
     const unsubMenu = subscribeToMenu(tenantId, (data) => {
       setMenuItems(data);
       const elapsed = Date.now() - startTime;
@@ -64,9 +68,13 @@ export default function Home() {
       } else {
         setLoading(false);
       }
+    }, (error) => {
+      console.error("Failed to load menu", error);
+      setLoading(false);
     });
 
     return () => {
+      clearTimeout(fallbackTimeoutId);
       unsubSettings();
       unsubMenu();
     };
