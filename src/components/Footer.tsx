@@ -13,9 +13,13 @@ export default function Footer({ settings }: FooterProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="text-center md:text-left flex flex-col gap-4">
           <div>
-            <h2 className="text-2xl font-bold uppercase tracking-widest text-white mb-2">
-              {settings?.restaurantName || 'PHILLY HYPE'}
-            </h2>
+            {settings?.logoUrl ? (
+              <img src={settings.logoUrl} alt={settings.restaurantName} className="h-12 w-auto mb-4 object-contain mx-auto md:mx-0" referrerPolicy="no-referrer" />
+            ) : (
+              <h2 className="text-2xl font-bold uppercase tracking-widest text-white mb-2">
+                {settings?.restaurantName || 'PHILLY HYPE'}
+              </h2>
+            )}
             <a 
               href="https://maps.app.goo.gl/tE9sWzfAkQJRwNMs5" 
               target="_blank" 

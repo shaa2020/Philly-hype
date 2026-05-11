@@ -14,7 +14,7 @@ export default function MenuCard({ item, onSelect }: MenuCardProps) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="group relative flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden transition-all duration-500 hover:border-accent/40 hover:shadow-[0_0_30px_rgba(255,107,0,0.1)] cursor-pointer"
+      className="group relative flex flex-col bg-bg-card border border-white/5 rounded-2xl overflow-hidden transition-all duration-500 hover:border-accent/40 hover:shadow-[0_0_30px_rgba(230,0,0,0.1)] cursor-pointer"
       onClick={() => onSelect(item)}
     >
       <div className="relative h-64 sm:h-72 overflow-hidden">
@@ -33,7 +33,7 @@ export default function MenuCard({ item, onSelect }: MenuCardProps) {
         )}
         
         {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+        <div className="absolute inset-0 bg-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
           <div
             className="px-6 py-2.5 bg-white/90 backdrop-blur-md rounded-full text-black font-semibold uppercase tracking-wider text-xs translate-y-4 group-hover:translate-y-0 transition-transform duration-500 shadow-lg"
           >
@@ -42,7 +42,7 @@ export default function MenuCard({ item, onSelect }: MenuCardProps) {
         </div>
 
         {/* Price Tag */}
-        <div className="absolute top-4 right-4 z-10 px-4 py-1.5 bg-black/70 text-white backdrop-blur-md border border-white/10 rounded-full font-bold text-sm">
+        <div className="absolute top-4 right-4 z-10 px-4 py-1.5 bg-white text-black backdrop-blur-md border border-white/10 rounded-full font-black text-sm shadow-xl">
           €{item.price.toFixed(2)}
         </div>
       </div>

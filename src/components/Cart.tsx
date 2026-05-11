@@ -270,7 +270,7 @@ export default function Cart({ settings }: CartProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 transition-opacity"
+            className="fixed inset-0 bg-white/90 backdrop-blur-md z-50 transition-opacity"
             onClick={() => setIsOpen(false)}
           />
         )}
@@ -326,7 +326,7 @@ export default function Cart({ settings }: CartProps) {
                     exit={{ opacity: 0, x: -20 }}
                     className="flex-grow flex flex-col gap-6"
                   >
-                    <div className="bg-black/30 border border-white/10 rounded-2xl p-6 text-center">
+                    <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
                       <p className="text-[10px] text-white/50 font-bold uppercase tracking-widest mb-2">Total Amount</p>
                       <p className="text-4xl font-display text-accent">€{finalTotal.toFixed(2)}</p>
                     </div>
@@ -337,7 +337,7 @@ export default function Cart({ settings }: CartProps) {
                         {settings?.mbWayNumber ? (
                           <div className="space-y-4">
                             <p className="text-xs text-white/60 font-medium">Please send the exact total amount to the given MB WAY number below.</p>
-                            <div className="bg-black/40 p-4 rounded-xl flex items-center justify-between border border-white/5">
+                            <div className="bg-white/10 p-4 rounded-xl flex items-center justify-between border border-white/5">
                               <span className="text-[10px] text-white/40 uppercase font-black tracking-widest">Phone Number</span>
                               <span className="font-display tracking-wider text-xl text-white">{settings.mbWayNumber}</span>
                             </div>
@@ -354,9 +354,9 @@ export default function Cart({ settings }: CartProps) {
                         </h3>
                         <p className="text-xs text-white/60 font-medium pb-2">Providing a screenshot speeds up order processing.</p>
                         
-                        <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all hover:bg-white/5 bg-black/20 group overflow-hidden">
+                        <label className="relative flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl cursor-pointer transition-all hover:bg-white/5 bg-white/5 group overflow-hidden">
                           {paymentProof ? (
-                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/60 backdrop-blur-sm group-hover:bg-black/80 transition-colors">
+                            <div className="absolute inset-0 z-10 flex items-center justify-center bg-white/20 backdrop-blur-sm group-hover:bg-white/90 transition-colors">
                               <div className="text-center">
                                 <ImageIcon className="w-8 h-8 text-accent mx-auto mb-2 opacity-80" />
                                 <span className="text-xs font-bold text-white truncate max-w-[200px] block px-4">{paymentProof.name}</span>
@@ -399,7 +399,7 @@ export default function Cart({ settings }: CartProps) {
                       <span>{t('servicePreference')}</span>
                       <span className="w-1 h-1 bg-accent/20" />
                     </p>
-                    <div className="flex p-0.5 bg-black/40 border border-white/10 rounded-lg overflow-hidden">
+                    <div className="flex p-0.5 bg-white/10 border border-white/10 rounded-lg overflow-hidden">
                       {(['Eat-in', 'Takeaway', 'Delivery'] as const).map((type) => (
                         <button
                           key={type}
@@ -434,7 +434,7 @@ export default function Cart({ settings }: CartProps) {
                           setCustomerInfo({...customerInfo, name: e.target.value});
                           setError(null);
                         }}
-                        className={`w-full bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && !customerInfo.name.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                        className={`w-full bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && !customerInfo.name.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                       />
                       <input 
                         type="tel" 
@@ -444,7 +444,7 @@ export default function Cart({ settings }: CartProps) {
                           setCustomerInfo({...customerInfo, phone: e.target.value});
                           setError(null);
                         }}
-                        className={`w-full bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && !customerInfo.phone.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                        className={`w-full bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && !customerInfo.phone.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                       />
                     </div>
                     <input 
@@ -452,7 +452,7 @@ export default function Cart({ settings }: CartProps) {
                       placeholder={t('nif')}
                       value={customerInfo.nif}
                       onChange={(e) => setCustomerInfo({...customerInfo, nif: e.target.value})}
-                      className="w-full bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border border-white/5 focus:border-accent/40"
+                      className="w-full bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border border-white/5 focus:border-accent/40"
                     />
                     {orderType === 'Delivery' && (
                       <motion.div
@@ -470,14 +470,14 @@ export default function Cart({ settings }: CartProps) {
                               setCustomerInfo({...customerInfo, address: e.target.value});
                               setError(null);
                             }}
-                            className={`flex-grow bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.address.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                            className={`flex-grow bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.address.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                           />
                           <input 
                             type="text" 
                             placeholder={t('door')}
                             value={customerInfo.door}
                             onChange={(e) => setCustomerInfo({...customerInfo, door: e.target.value})}
-                            className="w-24 sm:w-28 bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border border-white/5 focus:border-accent/40"
+                            className="w-24 sm:w-28 bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border border-white/5 focus:border-accent/40"
                           />
                         </div>
                         <div className="flex gap-1.5">
@@ -489,7 +489,7 @@ export default function Cart({ settings }: CartProps) {
                               setCustomerInfo({...customerInfo, city: e.target.value});
                               setError(null);
                             }}
-                            className={`flex-grow bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.city.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                            className={`flex-grow bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.city.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                           />
                           <input 
                             type="text" 
@@ -500,7 +500,7 @@ export default function Cart({ settings }: CartProps) {
                               setCustomerInfo({...customerInfo, zipCode: e.target.value});
                               setError(null);
                             }}
-                            className={`w-24 sm:w-28 bg-black/30 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.zipCode.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
+                            className={`w-24 sm:w-28 bg-white/5 p-2 text-[8px] sm:text-[9px] uppercase tracking-[0.1em] text-white placeholder:text-white/20 outline-none transition-all rounded-md border ${error && orderType === 'Delivery' && !customerInfo.zipCode.trim() ? 'border-red-500/80 bg-red-500/5 focus:border-red-500' : 'border-white/5 focus:border-accent/40'}`}
                           />
                         </div>
                         <div className="flex items-center justify-between p-1.5 bg-accent/5 border border-accent/20 rounded-md">
@@ -609,7 +609,7 @@ export default function Cart({ settings }: CartProps) {
                           </motion.button>
                         </div>
                         <div className="flex justify-between items-center mt-1">
-                          <div className="flex items-center bg-black/40 border border-white/5 rounded-full overflow-hidden scale-[0.8] sm:scale-[0.85] origin-left">
+                          <div className="flex items-center bg-white/10 border border-white/5 rounded-full overflow-hidden scale-[0.8] sm:scale-[0.85] origin-left">
                             <motion.button
                               whileActive={{ backgroundColor: 'rgba(255,255,255,0.1)' }}
                               onClick={() => updateQuantityByIndex(index, item.quantity - 1)}
@@ -646,7 +646,7 @@ export default function Cart({ settings }: CartProps) {
                             placeholder={t('addInstructions')}
                             value={item.specialInstructions || ''}
                             onChange={(e) => updateSpecialInstructionsByIndex(index, e.target.value)}
-                            className="w-full bg-black/30 border border-white/5 p-1.5 text-[8px] sm:text-[9px] text-white placeholder:text-white/20 focus:border-accent/40 outline-none transition-all rounded-md italic"
+                            className="w-full bg-white/5 border border-white/5 p-1.5 text-[8px] sm:text-[9px] text-white placeholder:text-white/20 focus:border-accent/40 outline-none transition-all rounded-md italic"
                           />
                         </div>
                       </div>
@@ -664,7 +664,7 @@ export default function Cart({ settings }: CartProps) {
                 layout
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="p-3 sm:p-5 border-t border-white/5 bg-black/40 backdrop-blur-xl z-20"
+                className="p-3 sm:p-5 border-t border-white/5 bg-white/10 backdrop-blur-xl z-20"
               >
                 <div className="space-y-1.5 mb-3 sm:mb-5">
                    <div className="flex justify-between text-white/40 uppercase tracking-[0.1em] text-[7px] sm:text-[8px]">

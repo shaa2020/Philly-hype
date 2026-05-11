@@ -59,7 +59,7 @@ export default function ItemModal({ item, allItems, onClose }: ItemModalProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="absolute inset-0 bg-black/90 backdrop-blur-xl"
+          className="absolute inset-0 bg-white/95 backdrop-blur-xl"
         />
         
         <motion.div
@@ -194,7 +194,7 @@ export default function ItemModal({ item, allItems, onClose }: ItemModalProps) {
             {/* Footer / Add to Cart */}
             <div className="mt-auto pt-4 md:pt-6 border-t border-white/5 bg-bg-card sticky bottom-0 z-20 pb-1">
               <div className="flex items-center justify-between mb-4 md:mb-6">
-                <div className="flex items-center bg-black/40 border border-white/5 rounded-full group-hover:border-white/20 transition-colors overflow-hidden">
+                <div className="flex items-center bg-white/10 border border-white/5 rounded-full group-hover:border-white/20 transition-colors overflow-hidden">
                   <button 
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="px-3 py-1.5 md:px-4 md:py-2 text-white/30 hover:text-accent transition-colors text-sm"

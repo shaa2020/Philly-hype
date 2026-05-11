@@ -13,8 +13,6 @@ import { getSettings, updateSettings } from './lib/firestore';
 import { useTenant } from './context/TenantContext';
 import { LanguageProvider } from './context/LanguageContext';
 
-import SuperAdminDashboard from './pages/superadmin/Dashboard';
-
 export default function App() {
   const { tenantId, loading, error } = useTenant();
 
@@ -34,7 +32,6 @@ export default function App() {
             <Route path="/admin" element={<Login />} />
             <Route path="/admin/login" element={<Navigate to="/admin" replace />} />
             <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/superadmin" element={<SuperAdminDashboard />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </BrowserRouter>

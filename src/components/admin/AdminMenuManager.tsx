@@ -137,22 +137,22 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
   };
 
   return (
-    <div className="bg-bg-card border border-white/10 rounded-3xl p-6 md:p-10 shadow-2xl">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-white/10 pb-6">
+    <div className="bg-[#ffffff] border border-zinc-200 rounded-3xl p-6 md:p-10 shadow-2xl">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10 gap-4 border-b border-zinc-200 pb-6">
         <div className="flex items-center gap-4">
           <div className="bg-accent/10 p-3 rounded-2xl border border-accent/20">
             <Tags className="w-6 h-6 text-accent" />
           </div>
           <div>
             <h2 className="text-2xl font-black uppercase tracking-widest leading-none">Menu Database</h2>
-            <p className="text-white/40 text-xs mt-2 uppercase tracking-widest font-bold">Manage categories and products</p>
+            <p className="text-zinc-500 text-xs mt-2 uppercase tracking-widest font-bold">Manage categories and products</p>
           </div>
         </div>
         
         {!isEditing && (
           <button 
             onClick={() => startEdit()}
-            className="bg-accent text-black hover:bg-accent/90 font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center gap-2 text-sm shadow-[0_0_15px_rgba(255,107,0,0.3)] w-full md:w-auto justify-center"
+            className="bg-accent text-black hover:bg-accent/90 font-black uppercase tracking-widest px-6 py-3 rounded-xl transition-all transform hover:scale-[1.02] active:scale-95 flex items-center gap-2 text-sm shadow-[0_0_15px_rgba(230,0,0,0.3)] w-full md:w-auto justify-center"
           >
             <Plus className="w-5 h-5" /> Add Product
           </button>
@@ -161,7 +161,7 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
 
       {isEditing ? (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <div className="bg-gradient-to-br from-black/60 to-black/30 border border-white/10 rounded-3xl p-6 md:p-8">
+          <div className="bg-gradient-to-br from-zinc-50 to-[#ffffff] border border-zinc-200 rounded-3xl p-6 md:p-8">
             <div className="flex items-center gap-3 mb-8">
               <h3 className="text-xl font-black uppercase tracking-widest text-accent">
                 {isEditing === 'new' ? 'Build New Product' : 'Edit Product Configuration'}
@@ -171,34 +171,34 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Product Name</label>
-                  <input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg placeholder-white/20" placeholder="e.g. Classic Philly" />
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Product Name</label>
+                  <input type="text" value={formData.name || ''} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg placeholder-zinc-400" placeholder="e.g. Classic Philly" />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Base Price</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Base Price</label>
                     <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 font-bold">€</span>
-                      <input type="number" step="0.01" value={formData.price || 0} onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})} className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl py-3 pl-8 pr-4 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg placeholder-white/20" />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">€</span>
+                      <input type="number" step="0.01" value={formData.price || 0} onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})} className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl py-3 pl-8 pr-4 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg placeholder-zinc-400" />
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Category</label>
-                    <select value={formData.category || 'Cheesesteaks'} onChange={e => setFormData({...formData, category: e.target.value as MenuCategory})} className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg appearance-none">
+                    <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Category</label>
+                    <select value={formData.category || 'Cheesesteaks'} onChange={e => setFormData({...formData, category: e.target.value as MenuCategory})} className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg appearance-none">
                       {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <label className="block text-[10px] font-bold uppercase tracking-widest text-white/50 pl-1">Description</label>
-                  <textarea value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} rows={3} className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors resize-none placeholder-white/20" placeholder="Describe the ingredients and flavor profile..." />
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Description</label>
+                  <textarea value={formData.description || ''} onChange={e => setFormData({...formData, description: e.target.value})} rows={3} className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors resize-none placeholder-zinc-400" placeholder="Describe the ingredients and flavor profile..." />
                 </div>
               </div>
 
               <div className="space-y-6">
-                <div className="bg-black/20 border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors">
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-6 hover:border-zinc-200 transition-colors">
                   <label className="block text-[10px] font-black uppercase tracking-widest text-accent mb-4 pl-1">Media Assets</label>
                   <div className="flex flex-col xl:flex-row items-center gap-6">
                     <div className="flex-grow w-full space-y-4">
@@ -207,7 +207,7 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
                         value={formData.imageURL || ''} 
                         onChange={e => setFormData({...formData, imageURL: e.target.value})} 
                         placeholder="https://images.unsplash.com/..."
-                        className="w-full bg-black/20 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all text-sm" 
+                        className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all text-sm" 
                       />
                       <div className="relative">
                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
@@ -215,32 +215,32 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
                           type="button"
                           onClick={() => fileInputRef.current?.click()}
                           disabled={uploadingImage}
-                          className="w-full bg-white/5 border border-dashed border-white/20 hover:border-accent/50 hover:bg-accent/5 px-4 py-4 rounded-xl flex items-center justify-center gap-3 text-sm font-bold uppercase tracking-widest transition-all group"
+                          className="w-full bg-zinc-50 border border-dashed border-zinc-300 hover:border-accent/50 hover:bg-accent/5 px-4 py-4 rounded-xl flex items-center justify-center gap-3 text-sm font-bold uppercase tracking-widest transition-all group"
                         >
                           {uploadingImage ? (
                             <><Loader2 className="w-5 h-5 animate-spin text-accent" /> Uploading...</>
                           ) : (
-                            <><ImageIcon className="w-5 h-5 text-white/40 group-hover:text-accent transition-colors" /> Upload from Device</>
+                            <><ImageIcon className="w-5 h-5 text-zinc-500 group-hover:text-accent transition-colors" /> Upload from Device</>
                           )}
                         </button>
                       </div>
                     </div>
                     {formData.imageURL ? (
-                      <img src={formData.imageURL} alt="Preview" className="w-32 h-32 rounded-2xl object-cover border-2 border-white/10 shadow-xl" />
+                      <img src={formData.imageURL} alt="Preview" className="w-32 h-32 rounded-2xl object-cover border-2 border-zinc-200 shadow-xl" />
                     ) : (
-                      <div className="w-32 h-32 rounded-2xl bg-white/5 border border-dashed border-white/10 flex items-center justify-center flex-shrink-0">
-                        <ImageIcon className="w-8 h-8 text-white/20" />
+                      <div className="w-32 h-32 rounded-2xl bg-zinc-50 border border-dashed border-zinc-200 flex items-center justify-center flex-shrink-0">
+                        <ImageIcon className="w-8 h-8 text-zinc-400" />
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="bg-black/20 border border-white/5 rounded-2xl p-6 hover:border-white/10 transition-colors">
+                <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-6 hover:border-zinc-200 transition-colors">
                   <div className="flex justify-between items-center mb-6">
                     <label className="block text-[10px] font-black uppercase tracking-widest text-accent pl-1">Modifiers & Add-ons</label>
                     <button 
                       onClick={handleAddOption}
-                      className="text-[10px] bg-white/10 hover:bg-white/20 px-3 py-2 rounded-lg font-black uppercase tracking-widest flex items-center gap-2 transition-colors"
+                      className="text-[10px] bg-zinc-100 hover:bg-zinc-200 px-3 py-2 rounded-lg font-black uppercase tracking-widest flex items-center gap-2 transition-colors"
                     >
                       <Plus className="w-3 h-3" /> New Add-on
                     </button>
@@ -253,27 +253,27 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
                           placeholder="Name (e.g. Extra Cheese)"
                           value={opt.name}
                           onChange={e => handleUpdateOption(idx, 'name', e.target.value)}
-                          className="flex-grow bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all"
+                          className="flex-grow bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all"
                         />
-                        <div className="w-28 flex items-center gap-2 bg-black/40 border border-white/10 hover:border-white/20 rounded-xl px-4 py-3 focus-within:ring-1 focus-within:ring-accent focus-within:border-accent transition-all">
-                          <span className="text-white/30 text-sm font-bold">+€</span>
+                        <div className="w-28 flex items-center gap-2 bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 focus-within:ring-1 focus-within:ring-accent focus-within:border-accent transition-all">
+                          <span className="text-zinc-400 text-sm font-bold">+€</span>
                           <input 
                             type="number" 
                             step="0.01"
                             value={opt.price}
                             onChange={e => handleUpdateOption(idx, 'price', parseFloat(e.target.value))}
-                            className="w-full bg-transparent text-sm text-white focus:outline-none font-bold placeholder-white/20"
+                            className="w-full bg-transparent text-sm text-zinc-900 focus:outline-none font-bold placeholder-zinc-400"
                             placeholder="0.00"
                           />
                         </div>
-                        <button onClick={() => handleRemoveOption(idx)} className="p-3 text-white/20 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-50 group-hover:opacity-100 hidden sm:block">
+                        <button onClick={() => handleRemoveOption(idx)} className="p-3 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-50 group-hover:opacity-100 hidden sm:block">
                           <X className="w-5 h-5" />
                         </button>
                       </div>
                     ))}
                     {(!formData.options || formData.options.length === 0) && (
-                      <div className="text-center py-6 border border-dashed border-white/5 rounded-xl bg-black/20">
-                        <p className="text-[10px] text-white/30 uppercase tracking-widest">No modifiers attached to this product</p>
+                      <div className="text-center py-6 border border-dashed border-zinc-200 rounded-xl bg-zinc-50">
+                        <p className="text-[10px] text-zinc-400 uppercase tracking-widest">No modifiers attached to this product</p>
                       </div>
                     )}
                   </div>
@@ -281,10 +281,10 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
               </div>
             </div>
 
-            <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 mt-10 pt-6 border-t border-white/10">
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-4 mt-10 pt-6 border-t border-zinc-200">
               <button 
                 onClick={cancelEdit} 
-                className="px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm bg-white/5 hover:bg-white/10 transition-colors"
+                className="px-8 py-3 rounded-xl font-bold uppercase tracking-widest text-sm bg-zinc-50 hover:bg-zinc-100 transition-colors"
               >
                 Cancel Draft
               </button>
@@ -300,13 +300,13 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {items.map(item => (
-            <div key={item.id} className="group flex flex-col bg-bg-dark border border-white/5 rounded-3xl overflow-hidden hover:border-white/20 hover:shadow-2xl transition-all duration-300">
+            <div key={item.id} className="group flex flex-col bg-[#ffffff] border border-zinc-200 rounded-3xl overflow-hidden hover:border-zinc-300 hover:shadow-2xl transition-all duration-300">
               
-              <div className="relative h-48 w-full bg-black/50 overflow-hidden">
+              <div className="relative h-48 w-full bg-zinc-100 overflow-hidden">
                 {item.imageURL ? (
                   <img src={item.imageURL} alt={item.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center text-white/20">
+                  <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400">
                     <ImageIcon className="w-12 h-12 mb-2"/>
                     <span className="text-[10px] uppercase font-bold tracking-widest">No Image Asset</span>
                   </div>
@@ -324,10 +324,10 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
 
                 {/* Top Right Actions Overlay */}
                 <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity translate-y-2 group-hover:translate-y-0 duration-300">
-                  <button onClick={() => startEdit(item)} className="p-2.5 bg-black/60 backdrop-blur-md rounded-xl text-white hover:text-accent border border-white/10 hover:border-accent/50 transition-colors shadow-lg">
+                  <button onClick={() => startEdit(item)} className="p-2.5 bg-zinc-200 backdrop-blur-md rounded-xl text-zinc-900 hover:text-accent border border-zinc-200 hover:border-accent/50 transition-colors shadow-lg">
                     <Edit2 className="w-4 h-4" />
                   </button>
-                  <button onClick={() => handleDelete(item.id!)} className="p-2.5 bg-red-500/80 backdrop-blur-md rounded-xl text-white hover:bg-red-500 border border-white/10 transition-colors shadow-lg">
+                  <button onClick={() => handleDelete(item.id!)} className="p-2.5 bg-red-500/80 backdrop-blur-md rounded-xl text-zinc-900 hover:bg-red-500 border border-zinc-200 transition-colors shadow-lg">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -340,24 +340,24 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
                 </div>
                 
                 <div className="mb-4">
-                  <span className="inline-block text-[10px] uppercase tracking-widest bg-white/10 text-white/70 px-2 py-1 rounded-md font-bold">
+                  <span className="inline-block text-[10px] uppercase tracking-widest bg-zinc-100 text-zinc-700 px-2 py-1 rounded-md font-bold">
                     {item.category}
                   </span>
                 </div>
                 
-                <p className="text-sm text-white/50 line-clamp-2 mt-auto">
+                <p className="text-sm text-zinc-500 line-clamp-2 mt-auto">
                   {item.description || "No description provided."}
                 </p>
 
                 {item.options && item.options.length > 0 && (
-                  <div className="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
+                  <div className="mt-4 pt-4 border-t border-zinc-200 flex flex-wrap gap-2">
                     {item.options.slice(0, 3).map((opt, i) => (
-                      <span key={i} className="text-[9px] uppercase tracking-widest bg-black text-white/40 border border-white/5 px-2 py-1 rounded-md">
+                      <span key={i} className="text-[9px] uppercase tracking-widest bg-zinc-100 text-zinc-500 border border-zinc-200 px-2 py-1 rounded-md">
                         {opt.name} <span className="text-accent">+€{opt.price.toFixed(2)}</span>
                       </span>
                     ))}
                     {item.options.length > 3 && (
-                      <span className="text-[9px] uppercase tracking-widest text-white/30 px-1 py-1">+{item.options.length - 3} more</span>
+                      <span className="text-[9px] uppercase tracking-widest text-zinc-400 px-1 py-1">+{item.options.length - 3} more</span>
                     )}
                   </div>
                 )}
@@ -366,12 +366,12 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
           ))}
 
           {items.length === 0 && (
-            <div className="col-span-full py-20 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-3xl bg-black/20">
+            <div className="col-span-full py-20 flex flex-col items-center justify-center border border-dashed border-zinc-200 rounded-3xl bg-zinc-50">
               <Tags className="w-16 h-16 text-white/10 mb-4" />
-              <p className="text-white/40 uppercase tracking-widest font-bold mb-6">No products found in the database</p>
+              <p className="text-zinc-500 uppercase tracking-widest font-bold mb-6">No products found in the database</p>
               <button 
                 onClick={() => startEdit()}
-                className="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-sm transition-colors flex items-center gap-2"
+                className="bg-zinc-100 hover:bg-zinc-200 px-6 py-3 rounded-xl font-bold uppercase tracking-widest text-sm transition-colors flex items-center gap-2"
               >
                 <Plus className="w-4 h-4" /> Initialize First Product
               </button>

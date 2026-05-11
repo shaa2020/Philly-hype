@@ -58,8 +58,11 @@ export interface DeliveryZone {
 export interface RestaurantSettings {
   id?: string;
   restaurantName: string;
+  logoUrl?: string;
   heroTitle: string;
   heroSubtitle: string;
+  heroImage?: string;
+  heroOverlayOpacity?: number;
   contactEmail: string;
   address: string;
   isOpen: boolean;

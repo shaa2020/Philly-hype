@@ -33,10 +33,10 @@ export default function Dashboard() {
           if (!currentData) {
             await updateSettings(tenantId, {
               restaurantName: 'PHILLY HYPE',
-              heroTitle: 'EXPERIENCE THE HYPE',
-              heroSubtitle: 'The best Philly Cheesesteaks & Smash Burgers in town.',
-              contactEmail: 'hello@phillyhype.com',
-              address: 'R. Melvin Jones 10B, 1600-867 Lisboa',
+              heroTitle: 'THE REAL PHILLY EXPERIENCE IN LISBON',
+              heroSubtitle: 'Authentic Philly Cheesesteaks & Smash Burgers.',
+              contactEmail: 'contact@phillyhype.pt',
+              address: 'Rua Melvin Jones 10B, 1600-867 Lisboa, Portugal',
               isOpen: true,
               whatsappNumber: '351912345678',
               mbWayNumber: '912345678',
@@ -112,44 +112,44 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-dark text-white flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 flex flex-col md:flex-row font-sans">
       
       {/* Desktop Sidebar (Hidden on Mobile) */}
-      <div className="hidden md:flex inset-y-0 left-0 z-50 w-64 bg-black/80 backdrop-blur-md border-r border-white/5 flex-col">
-        <div className="p-6 flex items-center gap-3 mb-6 border-b border-white/5">
+      <div className="hidden md:flex inset-y-0 left-0 z-50 w-64 bg-[#ffffff] border-r border-zinc-200 flex-col shadow-sm">
+        <div className="p-6 flex items-center gap-3 mb-6 border-b border-zinc-100">
           <div className="bg-accent/10 p-2 rounded-xl border border-accent/20">
             <LayoutDashboard className="w-5 h-5 text-accent" />
           </div>
-          <span className="font-bold uppercase tracking-widest text-sm text-white">Admin Panel</span>
+          <span className="font-bold uppercase tracking-widest text-sm text-zinc-900">Admin Panel</span>
         </div>
         
         <div className="flex-1 px-4 space-y-2">
           <button 
             onClick={() => setActiveTab('orders')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl uppercase tracking-widest text-xs font-bold transition-all ${activeTab === 'orders' ? 'bg-accent text-black' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl uppercase tracking-widest text-xs font-bold transition-all ${activeTab === 'orders' ? 'bg-zinc-100 text-zinc-900 shadow-sm border border-zinc-200' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
           >
             <Send className="w-4 h-4" /> Live Orders
           </button>
           
           <button 
             onClick={() => setActiveTab('menu')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl uppercase tracking-widest text-xs font-bold transition-all ${activeTab === 'menu' ? 'bg-accent text-black' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl uppercase tracking-widest text-xs font-bold transition-all ${activeTab === 'menu' ? 'bg-zinc-100 text-zinc-900 shadow-sm border border-zinc-200' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
           >
             <Utensils className="w-4 h-4" /> Menu Items
           </button>
           
           <button 
             onClick={() => setActiveTab('settings')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl uppercase tracking-widest text-xs font-bold transition-all ${activeTab === 'settings' ? 'bg-accent text-black' : 'text-white/60 hover:bg-white/5 hover:text-white'}`}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl uppercase tracking-widest text-xs font-bold transition-all ${activeTab === 'settings' ? 'bg-zinc-100 text-zinc-900 shadow-sm border border-zinc-200' : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900'}`}
           >
             <Settings className="w-4 h-4" /> Settings
           </button>
         </div>
 
-        <div className="p-4 border-t border-white/5">
+        <div className="p-4 border-t border-zinc-100">
           <button 
             onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white/50 hover:bg-red-500/10 hover:text-red-500 hover:border-red-500/20 transition-all font-bold uppercase tracking-widest text-xs"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-all font-bold uppercase tracking-widest text-xs"
           >
             <LogOut className="w-4 h-4" /> Logout
           </button>
@@ -180,10 +180,10 @@ export default function Dashboard() {
       </div>
 
       {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-lg border-t border-white/10 z-50 flex justify-around items-center px-2 py-3 pb-safe">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#ffffff] shadow-[0_-4px_20px_rgba(0,0,0,0.05)] border-t border-zinc-200 z-50 flex justify-around items-center px-2 py-3 pb-safe">
         <button 
           onClick={() => setActiveTab('orders')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 ${activeTab === 'orders' ? 'text-accent' : 'text-white/50'}`}
+          className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 ${activeTab === 'orders' ? 'text-accent' : 'text-zinc-400'}`}
         >
           <Send className="w-5 h-5" />
           <span className="text-[9px] font-bold uppercase tracking-widest">Orders</span>
@@ -191,7 +191,7 @@ export default function Dashboard() {
 
         <button 
           onClick={() => setActiveTab('menu')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 ${activeTab === 'menu' ? 'text-accent' : 'text-white/50'}`}
+          className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 ${activeTab === 'menu' ? 'text-accent' : 'text-zinc-400'}`}
         >
           <Utensils className="w-5 h-5" />
           <span className="text-[9px] font-bold uppercase tracking-widest">Menu</span>
@@ -199,7 +199,7 @@ export default function Dashboard() {
         
         <button 
           onClick={() => setActiveTab('settings')}
-          className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 ${activeTab === 'settings' ? 'text-accent' : 'text-white/50'}`}
+          className={`flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 ${activeTab === 'settings' ? 'text-accent' : 'text-zinc-400'}`}
         >
           <Settings className="w-5 h-5" />
           <span className="text-[9px] font-bold uppercase tracking-widest">Settings</span>
@@ -207,7 +207,7 @@ export default function Dashboard() {
 
         <button 
           onClick={handleLogout}
-          className="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 text-white/50 hover:text-red-500"
+          className="flex flex-col items-center gap-1 p-2 rounded-lg transition-colors flex-1 text-zinc-400 hover:text-red-500"
         >
           <LogOut className="w-5 h-5" />
           <span className="text-[9px] font-bold uppercase tracking-widest">Logout</span>

@@ -3,7 +3,6 @@ import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import MenuGrid from '../components/MenuGrid';
 import HowItWorks from '../components/HowItWorks';
-import Reviews from '../components/Reviews';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import Cart from '../components/Cart';
@@ -22,30 +21,31 @@ export default function Home() {
   const { t } = useLanguage();
 
   const demoSettings: RestaurantSettings = {
-    restaurantName: 'PHILLY HYPE (DEMO)',
-    heroTitle: 'EXPERIENCE THE HYPE',
-    heroSubtitle: 'The best Philly Cheesesteaks & Smash Burgers.',
-    contactEmail: 'demo@example.com',
-    address: 'Demo Street, 123',
+    restaurantName: 'PHILLY HYPE',
+    heroTitle: 'THE REAL PHILLY EXPERIENCE IN LISBON',
+    heroSubtitle: 'Authentic Philly Cheesesteaks & Smash Burgers.',
+    contactEmail: 'contact@phillyhype.pt',
+    address: 'Rua Melvin Jones 10B, 1600-867 Lisboa, Portugal',
     isOpen: true,
     whatsappNumber: '',
     mbWayNumber: '',
     deliveryFee: 2.50,
     promoBannerEnabled: true,
-    promoBannerText: '🔥 FREE DELIVERY ON ORDERS OVER €30 🔥',
+    promoBannerText: '🔥 BEST CHEESESTEAKS IN LISBON 🔥',
     storyEnabled: true,
-    storyHeadline: 'The Start of an Era',
-    storyDescription: 'Crafting the perfect Philly Cheesesteak takes more than just good ingredients. It takes passion, dedication, and a bit of outlaw spirit.',
+    storyHeadline: 'Directly from Philly to Lisbon',
+    storyDescription: 'Craving an authentic Philly Cheesesteak? We brought the real deal to Lisbon. Thinly sliced ribeye, melted cheese, and fresh bread.',
     highlightEnabled: true,
-    highlightTitle: 'The Outlaw',
-    highlightSubtitle: 'Loaded Fries',
-    highlightDescription: 'Crispy fries topped with shaved ribeye, cheese sauce, and scallions.',
-    currency: 'EUR'
+    highlightTitle: 'The Outlaw Loaded Fries',
+    highlightSubtitle: 'Messy but completely worth it.',
+    highlightDescription: 'Crispy fries topped with shaved ribeye, cheese sauce, and fresh scallions.'
   };
 
   const demoMenu: MenuItem[] = [
-    { id: '1', name: 'Philly Classic', price: 13.45, description: 'Thinly sliced ribeye, caramelized onions, provolone cheese.', category: 'Cheesesteaks', imageURL: 'https://images.unsplash.com/photo-1614548483848-18e310034a2e?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() },
-    { id: '2', name: 'Classic Smash Double', price: 11.45, description: 'Two smashed patties, American cheese, house sauce.', category: 'Burgers', imageURL: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() }
+    { id: '1', name: 'Original Philly Cheesesteak', price: 13.90, description: 'Thinly sliced ribeye, caramelized onions, provolone or cheese sauce.', category: 'Cheesesteaks', imageURL: 'https://images.unsplash.com/photo-1614548483848-18e310034a2e?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() },
+    { id: '2', name: 'Classic Smash Double', price: 11.50, description: 'Two smashed beef patties, American cheese, house sauce on a brioche bun.', category: 'Burgers', imageURL: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() },
+    { id: '3', name: 'Outlaw Loaded Fries', price: 8.50, description: 'Crispy fries smothered in cheese sauce, topped with ribeye pieces.', category: 'Sides', imageURL: 'https://images.unsplash.com/photo-1576107232684-1279f390859f?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() },
+    { id: '4', name: 'Chicken Philly', price: 12.90, description: 'Finely chopped chicken breast, grilled onions, provolone cheese.', category: 'Cheesesteaks', imageURL: 'https://images.unsplash.com/photo-1655381656515-56543162b719?q=80&w=1500&auto=format&fit=crop', isAvailable: true, createdAt: Date.now() }
   ];
 
   useEffect(() => {
@@ -125,7 +125,7 @@ export default function Home() {
       </AnimatePresence>
 
       <div className="min-h-screen flex flex-col bg-bg-dark relative">
-        <Navbar restaurantName={displaySettings?.restaurantName || 'PHILLY HYPE'} />
+        <Navbar restaurantName={displaySettings?.restaurantName || 'PHILLY HYPE'} logoUrl={displaySettings?.logoUrl} />
         
         <main className="flex-grow">
           <Hero settings={displaySettings} />
@@ -238,7 +238,7 @@ export default function Home() {
                   )}
                   <button 
                     onClick={() => document.getElementById('menu')?.scrollIntoView({ behavior: 'smooth' })}
-                    className="px-10 py-4 bg-white text-black font-extrabold uppercase tracking-widest hover:bg-accent transition-all rounded-full hover:shadow-[0_0_20px_rgba(255,107,0,0.3)]"
+                    className="px-10 py-4 bg-white text-black font-extrabold uppercase tracking-widest hover:bg-accent transition-all rounded-full hover:shadow-[0_0_20px_rgba(230,0,0,0.3)]"
                   >
                     {displaySettings?.highlightButtonText || t('snagItNow')}
                   </button>
@@ -249,7 +249,6 @@ export default function Home() {
 
         <HowItWorks />
         <MenuGrid items={displayMenu} />
-        <Reviews />
         <Contact settings={displaySettings} />
       </main>
 

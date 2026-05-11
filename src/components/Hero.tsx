@@ -12,38 +12,27 @@ export default function Hero({ settings }: HeroProps) {
   const title = settings?.heroTitle || 'EXPERIENCE THE HYPE';
   const subtitle = settings?.heroSubtitle || 'The best Philly Cheesesteaks & Smash Burgers in town.';
   
+  const overlayOpacity = settings?.heroOverlayOpacity !== undefined ? settings.heroOverlayOpacity / 100 : 0.8;
+  const overlayOpacityStrong = settings?.heroOverlayOpacity !== undefined ? Math.min(1, (settings.heroOverlayOpacity + 10) / 100) : 0.9;
+  
   return (
-    <section className="relative min-h-[90vh] flex items-center overflow-hidden py-24 md:py-32 bg-bg-dark border-b border-white/5">
+    <section className="relative min-h-[100dvh] flex items-center overflow-hidden pt-24 pb-16 md:pt-32 md:pb-24 bg-bg-dark border-b border-white/5">
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-right-bottom opacity-40 md:opacity-100" />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-dark via-bg-dark/80 to-transparent md:bg-gradient-to-r md:from-bg-dark md:via-bg-dark/90 md:to-transparent" />
+        <div 
+          className="absolute inset-0 bg-cover bg-right-bottom opacity-40 md:opacity-100"
+          style={{ backgroundImage: `url(${settings?.heroImage || 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=2000&auto=format&fit=crop'})` }}
+        />
+        <div 
+          className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-bg-dark to-transparent"
+          style={{
+            '--tw-gradient-via-position': '50%',
+            '--tw-gradient-stops': `var(--color-bg-dark), rgba(255,255,255,${overlayOpacity}) var(--tw-gradient-via-position), transparent`
+          } as React.CSSProperties}
+        />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex flex-col items-start max-w-3xl">
-          {settings?.isOpen ? (
-             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-10 flex items-center gap-3 border border-white/10 px-4 py-2 rounded-sm bg-black/20 backdrop-blur-md"
-             >
-              <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-              <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/80">
-                {t('kitchenLive')}
-              </span>
-             </motion.div>
-          ) : (
-             <motion.div 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-10 flex items-center gap-3 border border-white/10 px-4 py-2 rounded-sm bg-black/20 backdrop-blur-md"
-             >
-              <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
-              <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/50">
-                {t('kitchenClosed')}
-              </span>
-             </motion.div>
-          )}
           
           <div className="relative mb-8">
             <motion.h1 
@@ -118,7 +107,7 @@ export default function Hero({ settings }: HeroProps) {
                     href={settings.uberEatsUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-white/10 border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
                   >
                     <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
                     <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('uberEats') || 'UberEats'}</span>
@@ -129,7 +118,7 @@ export default function Hero({ settings }: HeroProps) {
                     href={settings.deliverooUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-white/10 border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
                   >
                     <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
                     <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('deliveroo') || 'Deliveroo'}</span>
@@ -140,7 +129,7 @@ export default function Hero({ settings }: HeroProps) {
                     href={settings.glovoUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-white/10 border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
                   >
                     <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
                     <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('glovo') || 'Glovo'}</span>
@@ -151,7 +140,7 @@ export default function Hero({ settings }: HeroProps) {
                     href={settings.boltFoodUrl} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-[#0c0c0c] border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
+                    className="group relative flex items-center justify-center sm:justify-start gap-3 sm:gap-4 px-5 py-4 sm:px-6 sm:py-5 rounded-[2rem] bg-white/10 border border-white/10 hover:border-accent/50 hover:bg-accent/5 transition-all duration-300"
                   >
                     <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-white/40 group-hover:bg-accent transition-colors" />
                     <span className="text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] group-hover:text-accent transition-colors">{t('boltFood') || 'Bolt Food'}</span>

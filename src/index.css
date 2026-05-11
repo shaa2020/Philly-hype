@@ -2,18 +2,21 @@
 @import "tailwindcss";
 
 @theme {
-  --color-accent: #ff6b00;
-  --color-bg-dark: #000000;
-  --color-bg-card: #0a0a0a;
+  --color-accent: #E60000;
+  --color-bg-dark: #FFFFFF;
+  --color-bg-card: #F5F5F5;
   
   --font-sans: 'Inter', 'Outfit', system-ui, sans-serif;
   --font-display: 'Anton', 'Outfit', sans-serif;
   --font-serif: 'Playfair Display', serif;
+
+  --color-white: #111111;
+  --color-black: #FFFFFF;
 }
 
 body {
   background-color: var(--color-bg-dark);
-  color: #eeeeee;
+  color: #111111;
   font-family: var(--font-sans);
   margin: 0;
   padding: 0;
@@ -32,7 +35,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 107, 0, 0.3);
+  background: rgba(230, 0, 0, 0.3);
   border-radius: 4px;
 }
 
@@ -41,15 +44,15 @@ body {
 }
 
 .glass-morphism {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(17, 17, 17, 0.02);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
 }
 
 .text-stroke {
-  -webkit-text-stroke: 1px rgba(255, 255, 255, 0.08);
+  -webkit-text-stroke: 1px rgba(17, 17, 17, 0.2);
   color: transparent;
 }
 
