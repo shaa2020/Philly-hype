@@ -13,7 +13,14 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
   const [isEditing, setIsEditing] = useState<string | null>(null);
   const [formData, setFormData] = useState<Partial<MenuItem>>({});
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [statusMsg, setStatusMsg] = useState({ text: '', type: '' });
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const showStatus = (text: string, type: 'success' | 'error') => {
+    setStatusMsg({ text, type });
+    setTimeout(() => setStatusMsg({ text: '', type: '' }), 4000);
+  };
 
   const startEdit = (item?: MenuItem) => {
     if (item) {
@@ -59,6 +66,7 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
 
   const handleSave = async () => {
     if (!tenantId) return;
+    setSaving(true);
     try {
       if (isEditing === 'new') {
         const newItem = {
@@ -66,20 +74,29 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
           createdAt: Date.now()
         } as Omit<MenuItem, 'id'>;
         await addMenuItem(tenantId, newItem);
+        showStatus('Menu item created successfully!', 'success');
       } else if (isEditing) {
         await updateMenuItem(tenantId, isEditing, formData as Partial<Omit<MenuItem, 'id'>>);
+        showStatus('Menu item updated successfully!', 'success');
       }
       setIsEditing(null);
       setFormData({});
     } catch (error) {
-      alert("Error saving menu item");
+      showStatus("Error saving menu item", 'error');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!tenantId) return;
     if (confirm('Are you sure you want to delete this item?')) {
-      await deleteMenuItem(tenantId, id);
+      try {
+        await deleteMenuItem(tenantId, id);
+        showStatus('Item deleted successfully', 'success');
+      } catch (e) {
+        showStatus('Failed to delete item', 'error');
+      }
     }
   };
 
@@ -158,6 +175,13 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
           </button>
         )}
       </div>
+
+      {statusMsg.text && (
+        <div className={`mb-6 p-4 rounded-xl text-sm font-bold uppercase tracking-widest flex items-center justify-center gap-2 animate-in fade-in ${statusMsg.type === 'success' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'}`}>
+          {statusMsg.type === 'success' ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+          {statusMsg.text}
+        </div>
+      )}
 
       {isEditing ? (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -290,9 +314,15 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
               </button>
               <button 
                 onClick={handleSave} 
-                className="px-8 py-3 rounded-xl font-black uppercase tracking-widest text-sm bg-accent text-black hover:bg-accent/90 transition-transform transform hover:scale-[1.02] shadow-[0_0_15px_rgba(255,107,0,0.3)] flex items-center justify-center gap-2"
+                disabled={saving}
+                className="px-8 py-3 rounded-xl font-black uppercase tracking-widest text-sm bg-accent text-black hover:bg-accent/90 transition-transform transform hover:scale-[1.02] shadow-[0_0_15px_rgba(255,107,0,0.3)] flex items-center justify-center gap-2 disabled:opacity-50 disabled:pointer-events-none"
               >
-                <CheckCircle className="w-4 h-4" /> Save Product Configuration
+                {saving ? (
+                  <Loader2 className="w-4 h-4 animate-spin" /> 
+                ) : (
+                  <CheckCircle className="w-4 h-4" /> 
+                )}
+                {saving ? 'Saving...' : 'Save Product Configuration'}
               </button>
             </div>
           </div>

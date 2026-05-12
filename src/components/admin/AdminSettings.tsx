@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { RestaurantSettings, DeliveryZone } from '../../types';
 import { updateSettings } from '../../lib/firestore';
-import { Save, Building, Phone, Store, CreditCard, Utensils, MessageSquare, MapPin, Plus, Trash2, Star, Upload, QrCode } from 'lucide-react';
+import { Save, Building, Phone, Store, CreditCard, Utensils, MessageSquare, MapPin, Plus, Trash2, Star, Upload, QrCode, CheckCircle, AlertCircle } from 'lucide-react';
 import QRCode from 'react-qr-code';
 import { useTenant } from '../../context/TenantContext';
 
@@ -25,46 +25,88 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState<'general' | 'visuals' | 'delivery' | 'qr'>('general');
 
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!tenantId) return;
     setSaving(true);
+    setSaveStatus('saving');
     try {
       await updateSettings(tenantId, formData as Omit<RestaurantSettings, 'id'>);
+      setSaveStatus('success');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error) {
-      alert("Error saving settings");
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } finally {
       setSaving(false);
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+          const MAX_SIZE = 1200;
+          if (width > height && width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          } else if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/webp', 0.8));
+          } else {
+            resolve(reader.result as string);
+          }
+        };
+        img.onerror = () => resolve(reader.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1024 * 1024 * 2) { // 2MB max
-        alert("Image must be smaller than 2MB");
+      if (file.size > 1024 * 1024 * 5) { // Allow up to 5MB before compression
+        alert("Image must be smaller than 5MB");
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, highlightImage: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImage(file);
+        setFormData({ ...formData, highlightImage: compressed });
+      } catch (err) {
+        alert("Failed to process image");
+      }
     }
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 1024 * 1024 * 2) {
-        alert("Image must be smaller than 2MB");
+      if (file.size > 1024 * 1024 * 5) {
+        alert("Image must be smaller than 5MB");
         return;
       }
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, logoUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressed = await compressImage(file);
+        setFormData({ ...formData, logoUrl: compressed });
+      } catch (err) {
+        alert("Failed to process image");
+      }
     }
   };
 
@@ -156,12 +198,27 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Logo URL (Optional)</label>
                 <div className="flex gap-2 relative">
                   <input 
-                    type="url" 
-                    value={formData.logoUrl || ''}
-                    onChange={(e) => setFormData({...formData, logoUrl: e.target.value})}
-                    className="flex-1 bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400"
+                    type="text" 
+                    value={formData.logoUrl?.startsWith('data:') ? 'Uploaded Image' : (formData.logoUrl || '')}
+                    onChange={(e) => {
+                      if (!formData.logoUrl?.startsWith('data:')) {
+                        setFormData({...formData, logoUrl: e.target.value});
+                      }
+                    }}
+                    disabled={formData.logoUrl?.startsWith('data:')}
+                    className={`flex-1 bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.logoUrl?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed' : ''}`}
                     placeholder="https://..."
                   />
+                  {formData.logoUrl?.startsWith('data:') && (
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, logoUrl: ''})} 
+                      className="absolute right-24 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors"
+                      title="Clear image"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
                   <div className="relative group flex items-center justify-center bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-xl px-4 cursor-pointer transition-colors">
                     <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Upload</span>
                     <input
@@ -212,14 +269,52 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
           <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Hero Image URL (Optional)</label>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 relative">
                   <input 
-                    type="url" 
-                    value={formData.heroImage || ''}
-                    onChange={(e) => setFormData({...formData, heroImage: e.target.value})}
-                    className="flex-1 bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400"
+                    type="text" 
+                    value={formData.heroImage?.startsWith('data:') ? 'Uploaded Image' : (formData.heroImage || '')}
+                    onChange={(e) => {
+                      if (!formData.heroImage?.startsWith('data:')) {
+                        setFormData({...formData, heroImage: e.target.value});
+                      }
+                    }}
+                    disabled={formData.heroImage?.startsWith('data:')}
+                    className={`flex-1 bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.heroImage?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed' : ''}`}
                     placeholder="https://images.unsplash.com/photo-..."
                   />
+                  {formData.heroImage?.startsWith('data:') && (
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, heroImage: ''})} 
+                      className="absolute right-24 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors"
+                      title="Clear image"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                  <div className="relative group flex items-center justify-center bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-xl px-4 h-12 cursor-pointer transition-colors">
+                    <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Upload</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          if (file.size > 1024 * 1024 * 5) {
+                            alert("Image must be smaller than 5MB");
+                            return;
+                          }
+                          try {
+                            const compressed = await compressImage(file);
+                            setFormData({ ...formData, heroImage: compressed });
+                          } catch (err) {
+                            alert("Failed to process image");
+                          }
+                        }
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                  </div>
                   {formData.heroImage && (
                     <div className="w-12 h-12 rounded-lg bg-zinc-50 border border-zinc-200 overflow-hidden flex-shrink-0">
                       <img src={formData.heroImage} alt="Hero preview" className="w-full h-full object-cover" />
@@ -438,11 +533,16 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
                       </div>
 
                       <input 
-                        type="url" 
-                        value={formData.highlightImage || ''}
-                        onChange={(e) => setFormData({...formData, highlightImage: e.target.value})}
+                        type="text" 
+                        value={formData.highlightImage?.startsWith('data:') ? 'Uploaded Image' : (formData.highlightImage || '')}
+                        onChange={(e) => {
+                          if (!formData.highlightImage?.startsWith('data:')) {
+                            setFormData({...formData, highlightImage: e.target.value});
+                          }
+                        }}
+                        disabled={formData.highlightImage?.startsWith('data:')}
                         placeholder="https://..."
-                        className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400"
+                        className={`w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.highlightImage?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed' : ''}`}
                       />
                     </div>
                   </div>
@@ -763,6 +863,7 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
           <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-6">
             <div className="bg-white p-6 rounded-2xl">
               <QRCode 
+                id="restaurant-qr-code"
                 value={window.location.origin} 
                 size={256}
                 level="H"
@@ -778,7 +879,7 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
             <button
               type="button"
               onClick={() => {
-                const svg = document.querySelector('svg');
+                const svg = document.getElementById('restaurant-qr-code');
                 if (!svg) return;
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
@@ -821,7 +922,7 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
         </div>
 
         {/* Form Actions */}
-        <div className="pt-6 border-t border-zinc-200">
+        <div className="pt-6 border-t border-zinc-200 flex flex-col sm:flex-row items-center gap-4">
           <button 
             type="submit" 
             disabled={saving}
@@ -834,6 +935,16 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
             )}
             {saving ? 'Saving Config...' : 'Apply Global Configuration'}
           </button>
+          {saveStatus === 'success' && (
+            <span className="text-green-600 font-bold uppercase tracking-widest text-sm flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+              <CheckCircle className="w-5 h-5" /> Saved successfully
+            </span>
+          )}
+          {saveStatus === 'error' && (
+            <span className="text-red-500 font-bold uppercase tracking-widest text-sm flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2">
+              <AlertCircle className="w-5 h-5" /> Error saving
+            </span>
+          )}
         </div>
       </form>
     </div>
