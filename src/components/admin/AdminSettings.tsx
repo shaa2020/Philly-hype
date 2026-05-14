@@ -122,32 +122,32 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
         </div>
       </div>
       
-      <div className="flex bg-zinc-100 p-1 rounded-xl mb-8 border border-zinc-200">
+      <div className="flex bg-zinc-100 p-1 rounded-xl mb-8 border border-zinc-200 overflow-x-auto hide-scrollbar">
         <button
           type="button"
           onClick={() => setActiveTab('general')}
-          className={`flex-1 py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'general' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+          className={`flex-1 min-w-max py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'general' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
         >
           General
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('visuals')}
-          className={`flex-1 py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'visuals' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+          className={`flex-1 min-w-max py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'visuals' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
         >
           Appearance
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('delivery')}
-          className={`flex-1 py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'delivery' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+          className={`flex-1 min-w-max py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'delivery' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
         >
           Delivery
         </button>
         <button
           type="button"
           onClick={() => setActiveTab('qr')}
-          className={`flex-1 py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'qr' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
+          className={`flex-1 min-w-max py-2 px-4 text-xs font-bold uppercase tracking-widest rounded-lg transition-all ${activeTab === 'qr' ? 'bg-zinc-100 text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'}`}
         >
           QR Code
         </button>
@@ -196,29 +196,31 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
               </div>
               <div className="space-y-2">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Logo URL (Optional)</label>
-                <div className="flex gap-2 relative">
-                  <input 
-                    type="text" 
-                    value={formData.logoUrl?.startsWith('data:') ? 'Uploaded Image' : (formData.logoUrl || '')}
-                    onChange={(e) => {
-                      if (!formData.logoUrl?.startsWith('data:')) {
-                        setFormData({...formData, logoUrl: e.target.value});
-                      }
-                    }}
-                    disabled={formData.logoUrl?.startsWith('data:')}
-                    className={`flex-1 bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.logoUrl?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed' : ''}`}
-                    placeholder="https://..."
-                  />
-                  {formData.logoUrl?.startsWith('data:') && (
-                    <button 
-                      type="button" 
-                      onClick={() => setFormData({...formData, logoUrl: ''})} 
-                      className="absolute right-24 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors"
-                      title="Clear image"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <input 
+                      type="text" 
+                      value={formData.logoUrl?.startsWith('data:') ? 'Uploaded Image' : (formData.logoUrl || '')}
+                      onChange={(e) => {
+                        if (!formData.logoUrl?.startsWith('data:')) {
+                          setFormData({...formData, logoUrl: e.target.value});
+                        }
+                      }}
+                      disabled={formData.logoUrl?.startsWith('data:')}
+                      className={`w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.logoUrl?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed pr-10' : ''}`}
+                      placeholder="https://..."
+                    />
+                    {formData.logoUrl?.startsWith('data:') && (
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData({...formData, logoUrl: ''})} 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors bg-zinc-50 rounded-full"
+                        title="Clear image"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                   <div className="relative group flex items-center justify-center bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-xl px-4 cursor-pointer transition-colors">
                     <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Upload</span>
                     <input
@@ -269,29 +271,31 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
           <div className="grid grid-cols-1 gap-6">
               <div className="space-y-2">
                 <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Hero Image URL (Optional)</label>
-                <div className="flex items-center gap-3 relative">
-                  <input 
-                    type="text" 
-                    value={formData.heroImage?.startsWith('data:') ? 'Uploaded Image' : (formData.heroImage || '')}
-                    onChange={(e) => {
-                      if (!formData.heroImage?.startsWith('data:')) {
-                        setFormData({...formData, heroImage: e.target.value});
-                      }
-                    }}
-                    disabled={formData.heroImage?.startsWith('data:')}
-                    className={`flex-1 bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.heroImage?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed' : ''}`}
-                    placeholder="https://images.unsplash.com/photo-..."
-                  />
-                  {formData.heroImage?.startsWith('data:') && (
-                    <button 
-                      type="button" 
-                      onClick={() => setFormData({...formData, heroImage: ''})} 
-                      className="absolute right-24 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors"
-                      title="Clear image"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  )}
+                <div className="flex items-center gap-3">
+                  <div className="relative flex-1">
+                    <input 
+                      type="text" 
+                      value={formData.heroImage?.startsWith('data:') ? 'Uploaded Image' : (formData.heroImage || '')}
+                      onChange={(e) => {
+                        if (!formData.heroImage?.startsWith('data:')) {
+                          setFormData({...formData, heroImage: e.target.value});
+                        }
+                      }}
+                      disabled={formData.heroImage?.startsWith('data:')}
+                      className={`w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.heroImage?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed pr-10' : ''}`}
+                      placeholder="https://images.unsplash.com/photo-..."
+                    />
+                    {formData.heroImage?.startsWith('data:') && (
+                      <button 
+                        type="button" 
+                        onClick={() => setFormData({...formData, heroImage: ''})} 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors bg-zinc-50 rounded-full"
+                        title="Clear image"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                   <div className="relative group flex items-center justify-center bg-zinc-50 hover:bg-zinc-100 border border-zinc-200 rounded-xl px-4 h-12 cursor-pointer transition-colors">
                     <span className="text-[10px] font-bold text-zinc-900 uppercase tracking-widest">Upload</span>
                     <input
@@ -532,18 +536,30 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
                         <div className="h-px bg-zinc-100 flex-1"></div>
                       </div>
 
-                      <input 
-                        type="text" 
-                        value={formData.highlightImage?.startsWith('data:') ? 'Uploaded Image' : (formData.highlightImage || '')}
-                        onChange={(e) => {
-                          if (!formData.highlightImage?.startsWith('data:')) {
-                            setFormData({...formData, highlightImage: e.target.value});
-                          }
-                        }}
-                        disabled={formData.highlightImage?.startsWith('data:')}
-                        placeholder="https://..."
-                        className={`w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.highlightImage?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed' : ''}`}
-                      />
+                      <div className="relative">
+                        <input 
+                          type="text" 
+                          value={formData.highlightImage?.startsWith('data:') ? 'Uploaded Image' : (formData.highlightImage || '')}
+                          onChange={(e) => {
+                            if (!formData.highlightImage?.startsWith('data:')) {
+                              setFormData({...formData, highlightImage: e.target.value});
+                            }
+                          }}
+                          disabled={formData.highlightImage?.startsWith('data:')}
+                          placeholder="https://..."
+                          className={`w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all font-medium placeholder-zinc-400 ${formData.highlightImage?.startsWith('data:') ? 'opacity-50 text-zinc-500 cursor-not-allowed pr-10' : ''}`}
+                        />
+                        {formData.highlightImage?.startsWith('data:') && (
+                          <button 
+                            type="button" 
+                            onClick={() => setFormData({...formData, highlightImage: ''})} 
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-red-500 p-1 transition-colors bg-zinc-50 rounded-full"
+                            title="Clear image"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -861,9 +877,8 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
         {/* QR Code Section */}
         <div className={activeTab === 'qr' ? 'block' : 'hidden'}>
           <div className="bg-zinc-50 border border-zinc-200 rounded-2xl p-8 flex flex-col items-center justify-center text-center space-y-6">
-            <div className="bg-white p-6 rounded-2xl">
+            <div className="bg-white p-6 rounded-2xl" id="qr-wrapper">
               <QRCode 
-                id="restaurant-qr-code"
                 value={window.location.origin} 
                 size={256}
                 level="H"
@@ -879,7 +894,7 @@ export default function AdminSettings({ settings }: AdminSettingsProps) {
             <button
               type="button"
               onClick={() => {
-                const svg = document.getElementById('restaurant-qr-code');
+                const svg = document.getElementById('qr-wrapper')?.querySelector('svg');
                 if (!svg) return;
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');

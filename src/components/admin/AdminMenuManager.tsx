@@ -50,7 +50,7 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
 
   const handleUpdateOption = (index: number, field: keyof MenuOption, value: string | number) => {
     const options = [...(formData.options || [])];
-    options[index] = { ...options[index], [field]: value };
+    options[index] = { ...options[index], [field]: value as any };
     setFormData({ ...formData, options });
   };
 
@@ -68,15 +68,21 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
     if (!tenantId) return;
     setSaving(true);
     try {
+      const sanitizedData = {
+        ...formData,
+        price: Number(formData.price) || 0,
+        options: formData.options?.map(o => ({ ...o, price: Number(o.price) || 0 })) || []
+      };
+
       if (isEditing === 'new') {
         const newItem = {
-          ...formData,
+          ...sanitizedData,
           createdAt: Date.now()
         } as Omit<MenuItem, 'id'>;
         await addMenuItem(tenantId, newItem);
         showStatus('Menu item created successfully!', 'success');
       } else if (isEditing) {
-        await updateMenuItem(tenantId, isEditing, formData as Partial<Omit<MenuItem, 'id'>>);
+        await updateMenuItem(tenantId, isEditing, sanitizedData as Partial<Omit<MenuItem, 'id'>>);
         showStatus('Menu item updated successfully!', 'success');
       }
       setIsEditing(null);
@@ -204,7 +210,7 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
                     <label className="block text-[10px] font-bold uppercase tracking-widest text-zinc-500 pl-1">Base Price</label>
                     <div className="relative">
                       <span className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500 font-bold">€</span>
-                      <input type="number" step="0.01" value={formData.price || 0} onChange={e => setFormData({...formData, price: parseFloat(e.target.value)})} className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl py-3 pl-8 pr-4 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg placeholder-zinc-400" />
+                      <input type="number" step="0.01" value={formData.price ?? ''} onChange={e => setFormData({...formData, price: e.target.value as any})} className="w-full bg-zinc-50 border border-zinc-200 hover:border-zinc-300 rounded-xl py-3 pl-8 pr-4 text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-colors font-bold text-lg placeholder-zinc-400" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -271,27 +277,27 @@ export default function AdminMenuManager({ items }: AdminMenuManagerProps) {
                   </div>
                   <div className="space-y-3">
                     {formData.options?.map((opt, idx) => (
-                      <div key={idx} className="flex gap-3 items-center group">
+                      <div key={idx} className="flex gap-2 sm:gap-3 items-center group">
                         <input 
                           type="text" 
                           placeholder="Name (e.g. Extra Cheese)"
                           value={opt.name}
                           onChange={e => handleUpdateOption(idx, 'name', e.target.value)}
-                          className="flex-grow bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all"
+                          className="min-w-0 flex-1 bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl px-3 sm:px-4 py-3 text-sm text-zinc-900 focus:outline-none focus:ring-1 focus:ring-accent focus:border-accent transition-all"
                         />
-                        <div className="w-28 flex items-center gap-2 bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl px-4 py-3 focus-within:ring-1 focus-within:ring-accent focus-within:border-accent transition-all">
+                        <div className="flex-shrink-0 w-24 sm:w-28 flex items-center gap-1 sm:gap-2 bg-zinc-100 border border-zinc-200 hover:border-zinc-300 rounded-xl px-2 sm:px-4 py-3 focus-within:ring-1 focus-within:ring-accent focus-within:border-accent transition-all">
                           <span className="text-zinc-400 text-sm font-bold">+€</span>
                           <input 
                             type="number" 
                             step="0.01"
-                            value={opt.price}
-                            onChange={e => handleUpdateOption(idx, 'price', parseFloat(e.target.value))}
-                            className="w-full bg-transparent text-sm text-zinc-900 focus:outline-none font-bold placeholder-zinc-400"
+                            value={opt.price ?? ''}
+                            onChange={e => handleUpdateOption(idx, 'price', e.target.value)}
+                            className="min-w-0 w-full bg-transparent text-sm text-zinc-900 focus:outline-none font-bold placeholder-zinc-400"
                             placeholder="0.00"
                           />
                         </div>
-                        <button onClick={() => handleRemoveOption(idx)} className="p-3 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-50 group-hover:opacity-100 hidden sm:block">
-                          <X className="w-5 h-5" />
+                        <button onClick={() => handleRemoveOption(idx)} className="flex-shrink-0 p-3 text-zinc-400 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-100 sm:opacity-50 group-hover:opacity-100">
+                          <X className="w-4 h-4 sm:w-5 sm:h-5" />
                         </button>
                       </div>
                     ))}

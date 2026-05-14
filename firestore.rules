@@ -8,12 +8,12 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
     
     function isSuperAdmin() {
-      return isSignedIn() && request.auth.token.email == 'iamshanto7860@gmail.com';
+      return isSignedIn() && request.auth.token.email_verified == true && request.auth.token.email == 'iamshanto7860@gmail.com';
     }
 
     function isTenantOwner(tenantId) {
       let tenantDoc = get(/databases/$(database)/documents/tenants/$(tenantId));
-      return tenantDoc != null && tenantDoc.data.ownerEmail == request.auth.token.email;
+      return tenantDoc != null && request.auth.token.email_verified == true && tenantDoc.data.ownerEmail == request.auth.token.email;
     }
 
     function isTenantAdmin(tenantId) {
